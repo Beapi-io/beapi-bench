@@ -2,9 +2,13 @@
 
 # beapi-bench
 
-Command line Benchmarking tool for apis.
+Command line Benchmarking tool for apis. Allows users to set concurrency/requests and runs set number of tests to BOMBARD endpoint to see how it will respond. This is helpfull for numerous reasons:
 
-Requires that Groovy, ApacheBench (ab) and GnuPlot already be installed (install from APT/YUM first).
+- creating more stable/scalable configuration for application server(ie garbage collection, threading, synchronization of threads, etc)
+- find bottlenecks and issues at points of scale
+- find ideal scale point for load balancing.
+
+Requirements: that Groovy, ApacheBench (ab) and GnuPlot already be installed (install from APT/YUM first).
 
 Download & Install script locally and make script executable then run like so:
 
