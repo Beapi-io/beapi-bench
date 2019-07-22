@@ -155,6 +155,7 @@ enum CommandLineInterface{
         List data = []
         while (i < this.testSize) {
             // call method; move this to method
+            print("[TEST ${i+1} of ${this.testSize}] ")
             List returnData = callApi(this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint)
             if (data.size() > 0) {
                 DecimalFormat df = new DecimalFormat("0.00")
@@ -216,7 +217,7 @@ enum CommandLineInterface{
                     List temp3 = temp2.split(' ')
                     Float temp4 = Float.parseFloat(temp3[0])
                     returnData[0] = df.format(temp4)
-                    print("[running] : ${df.format(temp4)}/")
+                    print(" : ${df.format(temp4)} bytes/")
                 }
                 if (it2 =~ /Time taken for tests/) {
                     List temp = it2.split(':')
@@ -224,7 +225,7 @@ enum CommandLineInterface{
                     List temp3 = temp2.split(' ')
                     Float temp4 = Float.parseFloat(temp3[0])
                     returnData[1] = df.format(temp4)
-                    print("${df.format(temp4)}/")
+                    print("${df.format(temp4)} secs/")
                 }
                 if (it2 =~ /Requests per second/) {
                     List temp = it2.split(':')
@@ -232,7 +233,7 @@ enum CommandLineInterface{
                     List temp3 = temp2.split(' ')
                     Float temp4 = Float.parseFloat(temp3[0])
                     returnData[2] = df.format(temp4)
-                    println("${df.format(temp4)}")
+                    println("${df.format(temp4)} rps")
                 }
             }
         } else {
