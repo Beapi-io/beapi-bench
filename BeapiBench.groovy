@@ -42,15 +42,17 @@ class BeapiBench {
  */
 enum CommandLineInterface{
     INSTANCE
-
-
+    List methods = ['GET','PUT','POST','DELETE']
     String method
     String endpoint
-    String concurrency = 50
-    String requests = 1000
-
+    Integer concurrency = 50
+    Integer requests = 1000
     String token
+    List headers
+    String contentType = 'application/json'
 
+    String tempPath = '/tmp'
+    String fileName = 'beapiBench.txt'
 
     CliBuilder cliBuilder
 
@@ -86,38 +88,61 @@ enum CommandLineInterface{
         OptionAccessor options = cliBuilder.parse(args)
         try {
             if (!options) {
-                throw new Exception('Could not parse command line options.',e)
+                throw new Exception('Could not parse command line options.\n')
             }
             if (options.h) {
                 cliBuilder.usage()
                 System.exit 0
             }
+
+            if(options.m && options.endpoint){
+                if(!methods.contains(options.m.toUpperCase())){
+                    throw new Exception('Request method not supported. Please try again.\n')
+                }
+                this.method = options.m
+
+
+                try {
+                    new URL(endpoint)
+                } catch (Exception e) {
+                    throw new Exception('Endpoint is not a valid URL. Please try again',e)
+                }
+                this.endpoint = options.endpoint
+            }else {
+                throw new Exception('Method (--method) and Endpoint (--endpoint) are both REQUIRED for BeapiBench to work. Please try again.\n')
+            }
+
+
+
             if (options.c) {
-                println("[concurrency]:"+options.c)
+                try {
+                    this.concurrency = options.c as Integer
+                }catch(Exception e){
+                    throw new Exception('Concurrency (--concurrency ,-c) expects an Integer. Please try again.',e)
+                }
             }
             if (options.n) {
-                println("[requests]:"+options.n)
-            }
-            if (options.endpoint) {
-                println("[endpoint]:"+options.endpoint)
-                /*
                 try {
-                    new URL(url);
-                    return true;
-                } catch (Exception e) {
-                    return false;
+                    this.requests = options.n as Integer
+                }catch(Exception e){
+                    throw new Exception('Requests (--request, -n) expects an Integer. Please try again.',e)
                 }
-                */
             }
+
+            if(this.concurrency>=this.requests){
+                throw new Exception('Concurrency must be less than number of requests. Please try again')
+            }
+
             if (options.t) {
-                println("[token]:"+options.t)
+                this.token = options.t.trim())
             }
             if (options.p) {
-                //headers
+                options.p.each(){
+                    this.headers.add(it.trim())
+                }
             }
             if (options.c) {
-                //content-type
-                println("[content-type]:"+options.c)
+                this.contentType = options.c.trim()
             }
         }catch(Exception e){
             System.err << e
