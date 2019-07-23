@@ -8,7 +8,17 @@ Command line Benchmarking tool for apis. Allows users to set concurrency/request
 - find bottlenecks and issues at points of scale
 - find ideal scale point for load balancing.
 
-Requirements: that Groovy, ApacheBench (ab) and GnuPlot already be installed (install from APT/YUM first).
+## System PreInstallation Requirements: 
+- Groovy
+- ApacheBench (ab)
+- GnuPlot
+
+You can do this by running the following from your shell:
+~~~~
+sudo apt install groovy
+sudo apt install apache-utils
+sudo apt-install gnuplot
+~~~~
 
 Download & Install script locally and make script executable then run like so:
 
