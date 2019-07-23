@@ -45,7 +45,7 @@ enum CommandLineInterface{
     protected String filename = 'beapiBench.txt'
     protected String tmpPath = path+filename
 
-    Integer testSize = 75
+    Integer testSize = 50
     Integer testTime = 60
 
 
@@ -66,6 +66,7 @@ enum CommandLineInterface{
             // REQUIRED TEST OPTS
             m(longOpt:'method',args:2, valueSeparator:'=',argName:'property=value', 'request method for endpoint (GET/PUT/POST/DELETE)')
             _(longOpt:'endpoint',args:2, valueSeparator:'=',argName:'property=value', 'url for making the api call (usage: --endpoint=http://localhost:8080)')
+            _(longOpt:'testnum',args:2, valueSeparator:'=',argName:'property=value', 'number of tests to run; defaults to 50 (usage: --testNum=100)')
 
             // OPTIONAL TEST OPTS
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
@@ -145,6 +146,18 @@ enum CommandLineInterface{
             if (options.j) {
                 this.contentType = options.j.trim()
             }
+
+            if (options.testnum) {
+                try {
+                    Integer temp = options.testnum as Integer
+                    if (!(temp>0)) {
+                        throw new Exception('Testnum must be a positive number greater than 0. Please try again.')
+                    }
+                    this.testSize=temp
+                } catch (Exception e) {
+                    throw new Exception('Testnum (--testnum) expects an Unsigned Integer greater than 0. Please try again.', e)
+                }
+            }
         } catch (Exception e) {
             System.err << e
             System.exit 1
@@ -174,7 +187,7 @@ enum CommandLineInterface{
             }
 
             float waitTime = Float.parseFloat(returnData[1])
-            waitTime = (waitTime * 1000)
+            waitTime = (waitTime * 1000)*2
             sleep(waitTime as Integer)
 
             i++
@@ -246,7 +259,11 @@ enum CommandLineInterface{
     protected void createChart(){
         try{
             println(this.tmpPath)
-            String bench = "gnuplot -p -e \"plot '${this.tmpPath}' using 1:2 with linespoint pt 7\""
+            String gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+            String gridX="set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+            String plot = "plot '${this.tmpPath}' using 1:2 with linespoint pt 7"
+            String bench = "gnuplot -p -e \"${gridX};${gridY};${plot}\""
+            println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
