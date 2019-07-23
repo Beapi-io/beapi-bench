@@ -25,7 +25,7 @@ Upon completing all tests, the script will create a graph of the data like so:
 NOTE: There is a PAUSE between each test of (time taken for previous test*2). This is to similate a natural traffic increase over time as traffic does not instantly start at 1,000,000/rps and continue that way. As each test gets faster with the number of threads/workers spawned, the time between tests decreases thus simulating an increased spike in traffic as well.
 
 ## Help File Output 
-
+~~~~
 usage: beapiBench [<options>] -m=method --endpoint=url
 OPTIONS:
  -c,--concurrency <property=value>   value for concurrent users per test run
@@ -53,4 +53,5 @@ BeapiBench is a tool for benchmarking and graphing api's. It requires that both
 ApacheBench (ab) and gnuplot be preinstalled and available to run. Please make
 sure these are available and installed via your repository. If you have any
 questions, please visit us a http://beapi.io. Thanks again.
+~~~~
 
