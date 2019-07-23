@@ -32,8 +32,11 @@ class BeapiBench {
 enum CommandLineInterface{
     INSTANCE
 
+
     private List methods = ['GET', 'PUT', 'POST', 'DELETE']
     protected String method
+    private List graphTypes = ['TESTTIME','TESTOVERTIME']
+    protected String graphType = 'TESTTIME'
     protected String endpoint
     protected Integer concurrency = 50
     protected Integer requests = 1000
@@ -45,6 +48,7 @@ enum CommandLineInterface{
     protected String filename = 'beapiBench.txt'
     protected String tmpPath = path+filename
 
+    Float totalTime
     Integer testSize = 50
     Integer testTime = 60
 
@@ -67,6 +71,7 @@ enum CommandLineInterface{
             m(longOpt:'method',args:2, valueSeparator:'=',argName:'property=value', 'request method for endpoint (GET/PUT/POST/DELETE)')
             _(longOpt:'endpoint',args:2, valueSeparator:'=',argName:'property=value', 'url for making the api call (usage: --endpoint=http://localhost:8080)')
             _(longOpt:'testnum',args:2, valueSeparator:'=',argName:'property=value', 'number of tests to run; defaults to 50 (usage: --testNum=100)')
+            g(longOpt:'graphtype',args:2, valueSeparator:'=',argName:'property=value', 'type of graph to create: TESTTIME / TESTOVERTIME; defaults to TESTTIME (usage: -g TESTOVERTIME)')
 
             // OPTIONAL TEST OPTS
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
@@ -141,6 +146,7 @@ enum CommandLineInterface{
             if (options.p) {
                 options.p.each() {
                     this.headers.add(it.trim())
+
                 }
             }
             if (options.j) {
@@ -151,12 +157,19 @@ enum CommandLineInterface{
                 try {
                     Integer temp = options.testnum as Integer
                     if (!(temp>0)) {
-                        throw new Exception('Testnum must be a positive number greater than 0. Please try again.')
+                        throw new Exception('Testnum (--testnum)must be a positive number greater than 0. Please try again.')
                     }
                     this.testSize=temp
                 } catch (Exception e) {
                     throw new Exception('Testnum (--testnum) expects an Unsigned Integer greater than 0. Please try again.', e)
                 }
+            }
+
+            if (options.g) {
+                if (!this.graphTypes.contains(options.g)) {
+                    throw new Exception("GraphType (--graphtype, -g) must match one of existing GraphTypes: [${this.graphTypes}]. Please try again.")
+                }
+                this.graphType = options.g
             }
         } catch (Exception e) {
             System.err << e
@@ -174,20 +187,28 @@ enum CommandLineInterface{
                 DecimalFormat df = new DecimalFormat("0.00")
                 int size = data.size() - 1
 
-                // will fail here if tests fail; need to create a way to continue
+                // TODO: will fail here if tests fail; need to create a way to continue
                 Float floatTemp1 = Float.parseFloat(returnData[1])
                 Float floatTemp2 = Float.parseFloat(data[size][0])
                 String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
-                //Float result = df.format(floatTemp3)
-                List temp = [floatTemp3, returnData[2]]
-                data.add(temp)
+                switch(this.graphType){
+                    case 'TESTTIME':
+                        List temp = [returnData[1], returnData[2]]
+                        data.add(temp)
+                        break
+                    case 'TESTOVERTIME':
+                        List temp = [floatTemp3, returnData[2]]
+                        data.add(temp)
+                        break
+                }
+                this.totalTime = Float.parseFloat(floatTemp3)
             } else {
                 List temp = [returnData[1], returnData[2]]
                 data.add(temp)
             }
 
             float waitTime = Float.parseFloat(returnData[1])
-            waitTime = (waitTime * 1000)*2
+            waitTime = ((waitTime * 1000)*2)+250
             sleep(waitTime as Integer)
 
             i++
@@ -258,10 +279,20 @@ enum CommandLineInterface{
 
     protected void createChart(){
         try{
-            println(this.tmpPath)
+            println("[tmp gnuplot file] >> "+this.tmpPath)
+
             String gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-            String gridX="set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-            String plot = "plot '${this.tmpPath}' using 1:2 with linespoint pt 7"
+            String gridX
+            switch(this.graphType){
+                case 'TESTTIME':
+                    gridX = "set xrange [*:] reverse; set grid xtics  lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+                    break
+                case 'TESTOVERTIME':
+                    gridX = "set grid xtics  lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+                    break
+            }
+
+            String plot = "plot '${this.tmpPath}' using 1:2 with linespoint pt 7 "
             String bench = "gnuplot -p -e \"${gridX};${gridY};${plot}\""
             println(bench)
             def proc = ['bash', '-c', bench].execute()
