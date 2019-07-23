@@ -34,6 +34,10 @@ Upon completing all tests, the script will create a graph of the data like so:
 
 NOTE: BE AWARE!!! There is a PAUSE between each test of (time taken for previous test*2) seconds. This is to similate a natural traffic progression over time... and this is STILL AGGRESSIVE. As each test gets faster with the number of threads/workers spawned, the time between tests decreases thus simulating an increased spike in traffic as well. This may be replaced with an algorithm but this was least processor intensive thus reducing number of microseconds affecting timeout process.
 
+
+## Is there a good concurrency to requests ratio I should use?
+This is a VERY common question and I generally use a concurrency that is 2.5 - 5% of the number of requests. You don't have to be exact but be aware that higher concurrency changes how many new threads will be spawned early on.
+
 ## Help File Output 
 ~~~~
 usage: beapiBench [<options>] -m=method --endpoint=url
