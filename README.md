@@ -32,11 +32,17 @@ or use shorthand like so...
 ~~~~
 ./BeapiBench.groovy -c 200 -n 3000 -t <JWT_TOKEN> -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
 ~~~~
+
+## Test Types
 Upon completing all tests, the script will create a graph of the data like so:
 
+![alt text](https://github.com/orubel/logos/blob/master/beapibench2.png)
+
+The above is the default testType of 'TESTTIME' which shows 'requests per second / time taken for entire test'.
+
+Below is the second testType of 'TESTOVERTIME' which shows 'requests per second / test time totals over time'
+
 ![alt text](https://github.com/orubel/logos/blob/master/beapibench.png)
-
-
 
 ## Is there a good concurrency to requests ratio I should use?
 This is a VERY common question and I generally use a concurrency that is 2.5 - 5% of the number of requests. You don't have to be exact but be aware that higher concurrency changes how many new threads will be spawned early on.
