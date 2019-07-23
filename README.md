@@ -33,14 +33,12 @@ or use shorthand like so...
 ./BeapiBench.groovy -c 200 -n 3000 -t <JWT_TOKEN> -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
 ~~~~
 
-## Test Types
-Upon completing all tests, the script will create a graph of the data like so:
+## Graph Types 
+- TESTTIME (-g TESTTIME) : This test is perfect for showing 'rampup' from ZERO. If you have a server that just started up and you want to test how quickly it ramps up, this is the test you run. This shows 'requests per second / time taken for entire test'
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapibench2.png)
 
-The above is the default testType of 'TESTTIME' which shows 'requests per second / time taken for entire test'.
-
-Below is the second testType of 'TESTOVERTIME' which shows 'requests per second / test time totals over time'
+- TESTOVERTIME (-g TESTOVERTIME) : This is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapibench.png)
 
