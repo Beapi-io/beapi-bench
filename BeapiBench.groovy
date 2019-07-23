@@ -189,21 +189,14 @@ enum CommandLineInterface{
 
                 // TODO: will fail here if tests fail; need to create a way to continue
                 Float floatTemp1 = Float.parseFloat(returnData[1])
-                Float floatTemp2 = Float.parseFloat(data[size][0])
+                Float floatTemp2 = Float.parseFloat(data[size][1])
                 String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
-                switch(this.graphType){
-                    case 'TESTTIME':
-                        List temp = [returnData[1], returnData[2]]
-                        data.add(temp)
-                        break
-                    case 'TESTOVERTIME':
-                        List temp = [floatTemp3, returnData[2]]
-                        data.add(temp)
-                        break
-                }
+                List temp = [returnData[1], floatTemp3, returnData[2]]
+                data.add(temp)
+
                 this.totalTime = Float.parseFloat(floatTemp3)
             } else {
-                List temp = [returnData[1], returnData[2]]
+                List temp = [returnData[1], returnData[1], returnData[2]]
                 data.add(temp)
             }
 
@@ -223,10 +216,22 @@ enum CommandLineInterface{
         // do I have to recreate apiBenchData???
 
         apiBenchData.append('# X   Y\n')
+
         data.each() {
-            apiBenchData.append '   '
-            apiBenchData.append it.join('   ')
-            apiBenchData.append '\n'
+            switch(this.graphType){
+                case 'TESTTIME':
+                    List temp = [it[0], it[2]]
+                    apiBenchData.append '   '
+                    apiBenchData.append temp.join('   ')
+                    apiBenchData.append '\n'
+                    break
+                case 'TESTOVERTIME':
+                    List temp = [it[1], it[2]]
+                    apiBenchData.append '   '
+                    apiBenchData.append temp.join('   ')
+                    apiBenchData.append '\n'
+                    break
+            }
         }
         //println(apiBenchData.text)
         createChart()
