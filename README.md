@@ -32,7 +32,7 @@ Upon completing all tests, the script will create a graph of the data like so:
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapibench.png)
 
-NOTE: There is a PAUSE between each test of (time taken for previous test*2). This is to similate a natural traffic increase over time as traffic does not instantly start at 1,000,000/rps and continue that way. As each test gets faster with the number of threads/workers spawned, the time between tests decreases thus simulating an increased spike in traffic as well.
+NOTE: BE AWARE!!! There is a PAUSE between each test of (time taken for previous test*2) seconds. This is to similate a natural traffic progression over time... and this is STILL AGGRESSIVE. As each test gets faster with the number of threads/workers spawned, the time between tests decreases thus simulating an increased spike in traffic as well. This may be replaced with an algorithm but this was least processor intensive thus reducing number of microseconds affecting timeout process.
 
 ## Help File Output 
 ~~~~
