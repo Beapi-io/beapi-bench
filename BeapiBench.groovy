@@ -35,8 +35,8 @@ enum CommandLineInterface{
 
     private List methods = ['GET', 'PUT', 'POST', 'DELETE']
     protected String method
-    private List graphTypes = ['TESTTIME','TESTOVERTIME']
-    protected String graphType = 'TESTTIME'
+    private List graphTypes = ['TIME','TOTALTIME','ALL']
+    protected String graphType = 'TIME'
     protected String endpoint
     protected Integer concurrency = 50
     protected Integer requests = 1000
@@ -67,11 +67,14 @@ enum CommandLineInterface{
             // HELP OPT
             h(longOpt: 'help', 'Print this help text and exit (usage: -h, --help)')
 
+            // FORCE OPT
+            f(longOpt: 'force', 'Force run without checking for dependencies')
+
             // REQUIRED TEST OPTS
             m(longOpt:'method',args:2, valueSeparator:'=',argName:'property=value', 'request method for endpoint (GET/PUT/POST/DELETE)')
             _(longOpt:'endpoint',args:2, valueSeparator:'=',argName:'property=value', 'url for making the api call (usage: --endpoint=http://localhost:8080)')
             _(longOpt:'testnum',args:2, valueSeparator:'=',argName:'property=value', 'number of tests to run; defaults to 50 (usage: --testNum=100)')
-            g(longOpt:'graphtype',args:2, valueSeparator:'=',argName:'property=value', 'type of graph to create: TESTTIME / TESTOVERTIME; defaults to TESTTIME (usage: -g TESTOVERTIME)')
+            g(longOpt:'graphtype',args:2, valueSeparator:'=',argName:'property=value', 'type of graph to create: TIME / TOTALTIME / ALL; defaults to TESTTIME (usage: -g TOTALTIME)')
 
             // OPTIONAL TEST OPTS
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
@@ -88,6 +91,42 @@ enum CommandLineInterface{
     void parse(args) {
         OptionAccessor options = cliBuilder.parse(args)
         try {
+
+            if (!options.f) {
+                /*
+                // Apache-Utils
+                String abChk = "dpkg -s ab &> /dev/null | echo \$?"
+                def proc2 = ['bash', '-c', abChk].execute()
+                proc2.waitFor()
+                def outputStream2 = new StringBuffer()
+                def error2 = new StringWriter()
+                proc2.waitForProcessOutput(outputStream2, error2)
+                String output2 = outputStream2.toString()
+                switch (output2) {
+                    case '0':
+                        break;
+                    case '1':
+                    default:
+                        throw new Exception('Apache-Utils not installed. Please install via your local repositorys or use -f (--force) to force run.')
+                }
+
+                String gnuChk = "dpkg -s gnuplot &> /dev/null | echo \$?"
+                def proc3 = ['bash', '-c', gnuChk].execute()
+                proc3.waitFor()
+                def outputStream3 = new StringBuffer()
+                def error3 = new StringWriter()
+                proc3.waitForProcessOutput(outputStream3, error3)
+                String output3 = outputStream3.toString()
+                switch (output3) {
+                    case '0':
+                        break;
+                    case '1':
+                    default:
+                        throw new Exception('Gnuplot not installed. Please install via your local repositorys or use --f (--force) to force run.')
+                }
+                */
+            }
+
             if (!options) {
                 throw new Exception('Could not parse command line options.\n')
             }
@@ -207,34 +246,71 @@ enum CommandLineInterface{
             i++
         }
 
-        // output to file
-        // TODO: check if file exists and ask if they want to overwrite if it does
-        def apiBenchData = new File(this.tmpPath)
-        if (apiBenchData.exists() && apiBenchData.canRead()) {
-            apiBenchData.delete()
-        }
-        // do I have to recreate apiBenchData???
 
-        apiBenchData.append('# X   Y\n')
-
-        data.each() {
-            switch(this.graphType){
-                case 'TESTTIME':
-                    List temp = [it[0], it[2]]
-                    apiBenchData.append '   '
-                    apiBenchData.append temp.join('   ')
-                    apiBenchData.append '\n'
-                    break
-                case 'TESTOVERTIME':
-                    List temp = [it[1], it[2]]
-                    apiBenchData.append '   '
-                    apiBenchData.append temp.join('   ')
-                    apiBenchData.append '\n'
-                    break
+        if(this.graphType!='ALL') {
+            def apiBenchData = new File("${this.path}/BEAPI_${this.graphType}.txt")
+            if (apiBenchData.exists() && apiBenchData.canRead()) {
+                apiBenchData.delete()
             }
+
+            apiBenchData.append('# X   Y\n')
+            data.each() {
+                apiBenchData.append '   '
+                List temp = []
+                switch (this.graphType) {
+                    case 'TOTALTIME':
+                        temp = [it[1], it[2]]
+                        break
+                    case 'TIME':
+                    default:
+                        temp = [it[0], it[2]]
+                        break
+                }
+                apiBenchData.append temp.join('   ')
+                apiBenchData.append '\n'
+            }
+            createChart(this.graphType,"${this.path}/BEAPI_${this.graphType}.txt")
+        }else{
+            // TOTALTIME
+            def apiBenchData = new File("${this.path}BEAPI_TOTALTIME.txt")
+            if (apiBenchData.exists() && apiBenchData.canRead()) {
+                apiBenchData.delete()
+            }
+
+            apiBenchData.append('# X   Y\n')
+            data.each() {
+                List temp1 = [it[1], it[2]]
+                apiBenchData.append '   '
+                apiBenchData.append temp1.join('   ')
+                apiBenchData.append '\n'
+            }
+            createChart('TOTALTIME',"${this.path}BEAPI_TOTALTIME.txt")
+
+            // TIME
+            def apiBenchData2 = new File("${this.path}BEAPI_TIME.txt")
+            if (apiBenchData2.exists() && apiBenchData.canRead()) {
+                apiBenchData2.delete()
+            }
+
+            apiBenchData2.append('# X   Y\n')
+            data.each() {
+                List temp2 = [it[0], it[2]]
+                apiBenchData2.append '   '
+                apiBenchData2.append temp2.join('   ')
+                apiBenchData2.append '\n'
+            }
+            createChart('TIME',"${this.path}BEAPI_TIME.txt")
         }
-        //println(apiBenchData.text)
-        createChart()
+    }
+
+    // TODO
+    protected createFile(){
+
+    }
+
+    // TODO
+    protected testConnection(){
+
     }
 
     protected List callApi(Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint){
@@ -282,24 +358,24 @@ enum CommandLineInterface{
     }
 
 
-    protected void createChart(){
+    protected void createChart(String graphType, String fileName){
         try{
-            println("[tmp gnuplot file] >> "+this.tmpPath)
-
+            println("[tmp gnuplot file] >> "+fileName)
+            String key = "set key left bottom"
             String gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
             String gridX
-            switch(this.graphType){
-                case 'TESTTIME':
-                    gridX = "set xrange [*:] reverse; set grid xtics  lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+            switch(graphType){
+                case 'TIME':
+                    gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
                     break
-                case 'TESTOVERTIME':
-                    gridX = "set grid xtics  lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+                case 'TOTALTIME':
+                    gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
                     break
             }
 
-            String plot = "plot '${this.tmpPath}' using 1:2 with linespoint pt 7 "
-            String bench = "gnuplot -p -e \"${gridX};${gridY};${plot}\""
-            println(bench)
+            String plot = "plot '${fileName}' using 1:2 with linespoint pt 7 title \\\"${graphType}\\\""
+            String bench = "gnuplot -p -e \"${gridX};${gridY};${key};${plot};\""
+            //println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
