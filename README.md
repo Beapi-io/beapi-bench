@@ -53,9 +53,10 @@ OPTIONS:
                                      (usage: -c 50, --concurrency=50)
     --endpoint <property=value>      url for making the api call (usage:
                                      --endpoint=http://localhost:8080)
- -g,--graphtype <property=value>     type of graph to create: TIME /
-                                     TOTALTIME; defaults to TIME (usage:
-                                     -g TOTALTIME)
+ -f,--force                          Force run without checking for dependencies
+ -g,--graphtype <property=value>     type of graph to create: TIME / TOTALTIME /
+                                     ALL; defaults to TESTTIME (usage: -g
+                                     TOTALTIME)
  -h,--help                           Print this help text and exit (usage: -h,
                                      --help)
  -j,--contenttype <property=value>   content-type header; defaults to
