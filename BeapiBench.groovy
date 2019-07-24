@@ -235,6 +235,7 @@ enum CommandLineInterface{
 
                 this.totalTime = Float.parseFloat(floatTemp3)
             } else {
+                // time/totaltime/rps
                 List temp = [returnData[1], returnData[1], returnData[2]]
                 data.add(temp)
             }
@@ -247,86 +248,30 @@ enum CommandLineInterface{
         }
 
 
-        if(this.graphType!='ALL') {
-            def apiBenchData = new File("${this.path}/BEAPI_${this.graphType}.txt")
-            if (apiBenchData.exists() && apiBenchData.canRead()) {
-                apiBenchData.delete()
-            }
-
-            apiBenchData.append('# X   Y\n')
-            data.each() {
-                apiBenchData.append '   '
-                List temp = []
-                switch (this.graphType) {
-                    case 'TOTALTIME':
-                        temp = [it[1], it[2]]
-                        break
-                    case 'TIME':
-                    default:
-                        temp = [it[0], it[2]]
-                        break
-                }
-                apiBenchData.append temp.join('   ')
-                apiBenchData.append '\n'
-            }
-
-            String title = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
-            createChart(this.graphType,"${title}","${this.path}/BEAPI_${this.graphType}.txt")
-        }else{
-            // TOTALTIME
-            def apiBenchData = new File("${this.path}BEAPI_TOTALTIME.txt")
-            if (apiBenchData.exists() && apiBenchData.canRead()) {
-                apiBenchData.delete()
-            }
-
-            apiBenchData.append('# X   Y\n')
-            data.each() {
-                List temp1 = [it[1], it[2]]
-                apiBenchData.append '   '
-                apiBenchData.append temp1.join('   ')
-                apiBenchData.append '\n'
-            }
-
-            String title = "[TOTALTIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
-            createChart('TOTALTIME',"${title}","${this.path}BEAPI_TOTALTIME.txt")
-
-            // TIME
-            def apiBenchData2 = new File("${this.path}BEAPI_TIME.txt")
-            if (apiBenchData2.exists() && apiBenchData.canRead()) {
-                apiBenchData2.delete()
-            }
-
-            apiBenchData2.append('# X   Y\n')
-            data.each() {
-                List temp2 = [it[0], it[2]]
-                apiBenchData2.append '   '
-                apiBenchData2.append temp2.join('   ')
-                apiBenchData2.append '\n'
-            }
-
-            String title2 = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
-            createChart('TIME',"${title2}","${this.path}BEAPI_TIME.txt")
-        }
-    }
-
-    // TODO
-    /*
-    protected createFileAndGraph(String graphType, String fileName){
-        def apiBenchData = new File("${this.path}BEAPI_${graphType.toUpperCase()}.txt")
-        if (apiBenchData.exists() && apiBenchData.canRead()) {
-            apiBenchData.delete()
-        }
-
-        apiBenchData.append('# X   Y\n')
+        // CREATE DATA FILE
+        File apiBenchData = new File("${this.tmpPath}")
+        if (apiBenchData.exists() && apiBenchData.canRead()) { apiBenchData.delete() }
+        apiBenchData.append('# X   Y   Z\n')
         data.each() {
-            List temp = [it[0], it[2]]
             apiBenchData.append '   '
-            apiBenchData.append temp.join('   ')
+            apiBenchData.append it.join('   ')
             apiBenchData.append '\n'
         }
-        createChart("${graphType}","${this.path}BEAPI_${graphType.toUpperCase()}.txt")
+
+        // CREATE GRAPH
+        if(this.graphType!='ALL') {
+            String title = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            createChart(this.graphType,"${title}")
+        }else{
+            String title = "[TOTALTIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            createChart('TOTALTIME',"${title}")
+
+            String title2 = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            createChart('TIME',"${title2}")
+        }
     }
-    */
+
+
 
     // TODO
     protected testConnection(){
@@ -378,24 +323,27 @@ enum CommandLineInterface{
     }
 
 
-    protected void createChart(String graphType, String title, String fileName){
+    protected void createChart(String graphType, String title){
         try{
-            println("[tmp gnuplot file] >> "+fileName)
+            println("[tmp gnuplot file] >> "+this.tmpPath)
             String key = "set key left bottom"
             String gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
             String gridX
+            String range
             switch(graphType){
                 case 'TIME':
                     gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+                    range = "1:3"
                     break
                 case 'TOTALTIME':
                     gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
+                    range = "2:3"
                     break
             }
 
-            String plot = "plot '${fileName}' using 1:2 with linespoint pt 7 title \\\"${title}\\\""
+            String plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\""
             String bench = "gnuplot -p -e \"${gridX};${gridY};${key};${plot};\""
-            //println(bench)
+            println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
