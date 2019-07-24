@@ -395,7 +395,7 @@ enum CommandLineInterface{
 
             String plot = "plot '${fileName}' using 1:2 with linespoint pt 7 title \\\"${title}\\\""
             String bench = "gnuplot -p -e \"${gridX};${gridY};${key};${plot};\""
-            println(bench)
+            //println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
