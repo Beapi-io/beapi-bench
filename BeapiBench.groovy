@@ -269,7 +269,9 @@ enum CommandLineInterface{
                 apiBenchData.append temp.join('   ')
                 apiBenchData.append '\n'
             }
-            createChart(this.graphType,"${this.path}/BEAPI_${this.graphType}.txt")
+
+            String title = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            createChart(this.graphType,"${title}","${this.path}/BEAPI_${this.graphType}.txt")
         }else{
             // TOTALTIME
             def apiBenchData = new File("${this.path}BEAPI_TOTALTIME.txt")
@@ -284,7 +286,9 @@ enum CommandLineInterface{
                 apiBenchData.append temp1.join('   ')
                 apiBenchData.append '\n'
             }
-            createChart('TOTALTIME',"${this.path}BEAPI_TOTALTIME.txt")
+
+            String title = "[TOTALTIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            createChart('TOTALTIME',"${title}","${this.path}BEAPI_TOTALTIME.txt")
 
             // TIME
             def apiBenchData2 = new File("${this.path}BEAPI_TIME.txt")
@@ -299,14 +303,30 @@ enum CommandLineInterface{
                 apiBenchData2.append temp2.join('   ')
                 apiBenchData2.append '\n'
             }
-            createChart('TIME',"${this.path}BEAPI_TIME.txt")
+
+            String title2 = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            createChart('TIME',"${title2}","${this.path}BEAPI_TIME.txt")
         }
     }
 
     // TODO
-    protected createFile(){
+    /*
+    protected createFileAndGraph(String graphType, String fileName){
+        def apiBenchData = new File("${this.path}BEAPI_${graphType.toUpperCase()}.txt")
+        if (apiBenchData.exists() && apiBenchData.canRead()) {
+            apiBenchData.delete()
+        }
 
+        apiBenchData.append('# X   Y\n')
+        data.each() {
+            List temp = [it[0], it[2]]
+            apiBenchData.append '   '
+            apiBenchData.append temp.join('   ')
+            apiBenchData.append '\n'
+        }
+        createChart("${graphType}","${this.path}BEAPI_${graphType.toUpperCase()}.txt")
     }
+    */
 
     // TODO
     protected testConnection(){
@@ -358,7 +378,7 @@ enum CommandLineInterface{
     }
 
 
-    protected void createChart(String graphType, String fileName){
+    protected void createChart(String graphType, String title, String fileName){
         try{
             println("[tmp gnuplot file] >> "+fileName)
             String key = "set key left bottom"
@@ -373,9 +393,9 @@ enum CommandLineInterface{
                     break
             }
 
-            String plot = "plot '${fileName}' using 1:2 with linespoint pt 7 title \\\"${graphType}\\\""
+            String plot = "plot '${fileName}' using 1:2 with linespoint pt 7 title \\\"${title}\\\""
             String bench = "gnuplot -p -e \"${gridX};${gridY};${key};${plot};\""
-            //println(bench)
+            println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
