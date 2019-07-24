@@ -34,11 +34,11 @@ or use shorthand like so...
 ~~~~
 
 ## Graph Types 
-- TESTTIME (-g TESTTIME) : This test is perfect for showing 'rampup' from ZERO. If you have a server that just started up and you want to test how quickly it ramps up, this is the test you run. This shows 'requests per second / time taken for entire test'
+- TIME (-g TIME) : This test is perfect for showing 'rampup' from ZERO. If you have a server that just started up and you want to test how quickly it ramps up, this is the test you run. This shows 'requests per second / time taken for entire test'
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapibench2.png)
 
-- TESTOVERTIME (-g TESTOVERTIME) : This is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
+- TOTALTIME (-g TOTALTIME) : This is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapibench.png)
 
@@ -53,9 +53,9 @@ OPTIONS:
                                      (usage: -c 50, --concurrency=50)
     --endpoint <property=value>      url for making the api call (usage:
                                      --endpoint=http://localhost:8080)
- -g,--graphtype <property=value>     type of graph to create: TESTTIME /
-                                     TESTOVERTIME; defaults to TESTTIME (usage:
-                                     -g TESTOVERTIME)
+ -g,--graphtype <property=value>     type of graph to create: TIME /
+                                     TOTALTIME; defaults to TIME (usage:
+                                     -g TOTALTIME)
  -h,--help                           Print this help text and exit (usage: -h,
                                      --help)
  -j,--contenttype <property=value>   content-type header; defaults to
