@@ -57,7 +57,7 @@ enum CommandLineInterface{
 
     CommandLineInterface(){
         cliBuilder = new CliBuilder(
-            usage: 'beapiBench [<options>] -m=method --endpoint=url',
+            usage: 'BeapiBench.groovy [<options>] -m=method --endpoint=url',
             header: 'OPTIONS:',
             footer: "BeapiBench is a tool for benchmarking and graphing api's. It requires that both ApacheBench (ab) and gnuplot be preinstalled and available to run. Please make sure these are available and installed via your repository. If you have any questions, please visit us a http://beapi.io. Thanks again."
         )
