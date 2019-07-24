@@ -47,7 +47,7 @@ This is a VERY common question and I generally use a concurrency that is 2.5 - 5
 
 ## Help File Output 
 ~~~~
-usage: beapiBench [<options>] -m=method --endpoint=url
+usage: BeapiBench.groovy [<options>] -m=method --endpoint=url
 OPTIONS:
  -c,--concurrency <property=value>   value for concurrent users per test run
                                      (usage: -c 50, --concurrency=50)
