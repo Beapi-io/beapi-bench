@@ -343,21 +343,21 @@ enum CommandLineInterface{
                     xlabel = "set xlabel \\\"Seconds\\\" "
                     setTitle = "set title \\\"Time For Each API Test\\\" "
                     gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "using 1:3:2 with labels center boxed notitle"
+                    pointLabel = "every 3::0 using 1:3:2 with labels center boxed notitle"
                     range = "1:3:1"
                     break
                 case 'TOTALTIME':
                     xlabel = "set xlabel \\\"Total Seconds\\\" "
                     setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests\\\" "
                     gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "using 2:3:1 with labels center boxed notitle"
+                    pointLabel = "every 3::0 using 2:3:1 with labels center boxed notitle"
                     range = "2:3:2"
                     break
             }
 
             String plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\""
             String bench = "gnuplot -p -e \"${gridX};${gridY};${xlabel};${ylabel};${setTitle};${key};${style};${plot},      ''          ${pointLabel};\""
-            println(bench)
+            //println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
