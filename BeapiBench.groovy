@@ -226,7 +226,8 @@ enum CommandLineInterface{
                 DecimalFormat df = new DecimalFormat("0.00")
                 int size = data.size() - 1
 
-                // TODO: will fail here if tests fail; need to create a way to continue
+                // TODO: will fail here if tests fail; need to create a way to continue; test returnData
+
                 Float floatTemp1 = Float.parseFloat(returnData[1])
                 Float floatTemp2 = Float.parseFloat(data[size][1])
                 String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
@@ -260,13 +261,13 @@ enum CommandLineInterface{
 
         // CREATE GRAPH
         if(this.graphType!='ALL') {
-            String title = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
             createChart(this.graphType,"${title}")
         }else{
-            String title = "[TOTALTIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
             createChart('TOTALTIME',"${title}")
 
-            String title2 = "[TIME] ${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
+            String title2 = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
             createChart('TIME',"${title2}")
         }
     }
@@ -326,23 +327,36 @@ enum CommandLineInterface{
     protected void createChart(String graphType, String title){
         try{
             println("[tmp gnuplot file] >> "+this.tmpPath)
+
             String key = "set key left bottom"
+            String style = "set style textbox opaque"
             String gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
             String gridX
             String range
+            String pointLabel
+            String setTitle
+            String ylabel = "set ylabel \\\"RPS For Each Test\\\" "
+            String xlabel
+
             switch(graphType){
                 case 'TIME':
+                    xlabel = = "set xlabel \\\"Seconds\\\" "
+                    setTitle = "set title \\\"Time For Each API Test\\\" "
                     gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    range = "1:3"
+                    pointLabel = "using 1:3:2 with labels center boxed notitle"
+                    range = "1:3:1"
                     break
                 case 'TOTALTIME':
+                    xlabel = = "set xlabel \\\"Total Seconds\\\" "
+                    setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests\\\" "
                     gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    range = "2:3"
+                    pointLabel = "using 2:3:1 with labels center boxed notitle"
+                    range = "2:3:2"
                     break
             }
 
             String plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\""
-            String bench = "gnuplot -p -e \"${gridX};${gridY};${key};${plot};\""
+            String bench = "gnuplot -p -e \"${gridX};${gridY};${xlabel};${ylabel};${setTitle};${key};${style};${plot},      ''          ${pointLabel};\""
             println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
