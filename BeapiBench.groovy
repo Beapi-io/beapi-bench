@@ -340,14 +340,14 @@ enum CommandLineInterface{
 
             switch(graphType){
                 case 'TIME':
-                    xlabel = = "set xlabel \\\"Seconds\\\" "
+                    xlabel = "set xlabel \\\"Seconds\\\" "
                     setTitle = "set title \\\"Time For Each API Test\\\" "
                     gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
                     pointLabel = "using 1:3:2 with labels center boxed notitle"
                     range = "1:3:1"
                     break
                 case 'TOTALTIME':
-                    xlabel = = "set xlabel \\\"Total Seconds\\\" "
+                    xlabel = "set xlabel \\\"Total Seconds\\\" "
                     setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests\\\" "
                     gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
                     pointLabel = "using 2:3:1 with labels center boxed notitle"
