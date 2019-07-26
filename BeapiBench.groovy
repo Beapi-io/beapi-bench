@@ -47,7 +47,7 @@ enum CommandLineInterface{
     protected String path = '/tmp/'
     protected String filename = 'beapiBench.txt'
     protected String tmpPath = path+filename
-
+    boolean noHardcore = true
     Float totalTime
     Integer testSize = 50
     Integer testTime = 60
@@ -74,6 +74,7 @@ enum CommandLineInterface{
             m(longOpt:'method',args:2, valueSeparator:'=',argName:'property=value', 'request method for endpoint (GET/PUT/POST/DELETE)')
             _(longOpt:'endpoint',args:2, valueSeparator:'=',argName:'property=value', 'url for making the api call (usage: --endpoint=http://localhost:8080)')
             _(longOpt:'testnum',args:2, valueSeparator:'=',argName:'property=value', 'number of tests to run; defaults to 50 (usage: --testNum=100)')
+            _(longOpt: 'hardcore', 'No pause between tests')
             g(longOpt:'graphtype',args:2, valueSeparator:'=',argName:'property=value', 'type of graph to create: TIME / TOTALTIME / ALL; defaults to TESTTIME (usage: -g TOTALTIME)')
 
             // OPTIONAL TEST OPTS
@@ -192,6 +193,10 @@ enum CommandLineInterface{
                 this.contentType = options.j.trim()
             }
 
+            if (options.hardcore) {
+                this.noHardcore = false
+            }
+
             if (options.testnum) {
                 try {
                     Integer temp = options.testnum as Integer
@@ -228,14 +233,17 @@ enum CommandLineInterface{
                     int size = data.size() - 1
 
                     // TODO: will fail here if tests fail; need to create a way to continue; test returnData
+                    try {
+                        Float floatTemp1 = Float.parseFloat(returnData[1])
+                        Float floatTemp2 = Float.parseFloat(data[size][1])
+                        String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
+                        List temp = [returnData[1], floatTemp3, returnData[2], Float.parseFloat(returnData[3]), Float.parseFloat(returnData[4]), Float.parseFloat(returnData[5]), Float.parseFloat(returnData[6]), Float.parseFloat(returnData[7]), Float.parseFloat(returnData[8])]
+                        data.add(temp)
 
-                    Float floatTemp1 = Float.parseFloat(returnData[1])
-                    Float floatTemp2 = Float.parseFloat(data[size][1])
-                    String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
-                    List temp = [returnData[1], floatTemp3, returnData[2],Float.parseFloat(returnData[3]),Float.parseFloat(returnData[4]),Float.parseFloat(returnData[5]),Float.parseFloat(returnData[6]),Float.parseFloat(returnData[7]),Float.parseFloat(returnData[8])]
-                    data.add(temp)
-
-                    this.totalTime = Float.parseFloat(floatTemp3)
+                        this.totalTime = Float.parseFloat(floatTemp3)
+                    }catch(Exception e){
+                        println(returnData)
+                    }
                 } else {
                     // time/totaltime/rps
                     List temp = [returnData[1], returnData[1], returnData[2],returnData[3],returnData[4],returnData[5],returnData[6],returnData[7],returnData[8]]
@@ -245,10 +253,11 @@ enum CommandLineInterface{
                 println(" TEST FAILED. Set concurrency/requests lower or change server config.")
             }
 
-            float waitTime = Float.parseFloat(returnData[1])
-            waitTime = ((waitTime * 1000)*2)+250
-            sleep(waitTime as Integer)
-
+            if(this.noHardcore) {
+                float waitTime = Float.parseFloat(returnData[1])
+                waitTime = ((waitTime * 1000) * 2) + 250
+                sleep(waitTime as Integer)
+            }
             i++
         }
 
