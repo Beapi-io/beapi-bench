@@ -309,7 +309,7 @@ enum CommandLineInterface{
 
             def group = (finalOutput =~ /Document Length:        ([0-9]+) bytes Concurrency Level:      ([0-9]+) Time taken for tests:   ([0-9\.]+) seconds Complete requests:      ([0-9]+) Failed requests:        ([0-9]+) Total transferred:      ([0-9]+) bytes HTML transferred:       ([0-9]+) bytes Requests per second:    ([0-9\.]+) \[#\/sec\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean, across all concurrent requests\) Transfer rate:          ([0-9\.]+) \[Kbytes\/sec\] received/)
             if (group.hasGroup() && group.size() > 0) {
-                println("${group[0][1]}  bytes/${group[0][3]} secs/${group[0][8]} rps")
+                println("[${group[0][1]}  bytes / ${group[0][11]} trasferRate] : ${group[0][3]} secs/${group[0][8]} rps")
 
                 // Document Length
                 returnData[0] = df.format(Float.parseFloat(group[0][1]))
