@@ -4,17 +4,17 @@
 import groovy.json.JsonSlurper
 import java.text.DecimalFormat
 
-// Data to retrieve:
-//Document Length:        102 bytes
-//Time taken for tests:   1.884 seconds
-//Requests per second:    1326.87 [#/sec] (mean)
-
-// gnuplot> plot "data.txt" using 1:2 with linespoint pt 7
-
-/**
- *  -file=filename.txt (required)
- *  -testSize=50 (default)
- *  -testTime=60 (seconds)
+/*
+ * Copyright 2013-2019 Beapi.io
+ *
+ * Licensed under the MPL-2.0 License;
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 class BeapiBench {
 
@@ -271,8 +271,6 @@ enum CommandLineInterface{
             createChart('TIME',"${title2}")
         }
     }
-
-
 
     // TODO
     protected testConnection(){
