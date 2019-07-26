@@ -232,13 +232,13 @@ enum CommandLineInterface{
                     Float floatTemp1 = Float.parseFloat(returnData[1])
                     Float floatTemp2 = Float.parseFloat(data[size][1])
                     String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
-                    List temp = [returnData[1], floatTemp3, returnData[2]]
+                    List temp = [returnData[1], floatTemp3, returnData[2],Float.parseFloat(returnData[3]),Float.parseFloat(returnData[4]),Float.parseFloat(returnData[5]),Float.parseFloat(returnData[6]),Float.parseFloat(returnData[7]),Float.parseFloat(returnData[8])]
                     data.add(temp)
 
                     this.totalTime = Float.parseFloat(floatTemp3)
                 } else {
                     // time/totaltime/rps
-                    List temp = [returnData[1], returnData[1], returnData[2]]
+                    List temp = [returnData[1], returnData[1], returnData[2],returnData[3],returnData[4],returnData[5],returnData[6],returnData[7],returnData[8]]
                     data.add(temp)
                 }
             }else{
@@ -256,7 +256,7 @@ enum CommandLineInterface{
         // CREATE DATA FILE
         File apiBenchData = new File("${this.tmpPath}")
         if (apiBenchData.exists() && apiBenchData.canRead()) { apiBenchData.delete() }
-        apiBenchData.append('# X   Y   Z\n')
+        apiBenchData.append('# doc   sum   time   rps   success   fail   data   html   tpr   transferrate\n')
         data.each() {
             apiBenchData.append '   '
             apiBenchData.append it.join('   ')
@@ -344,16 +344,16 @@ enum CommandLineInterface{
             switch(graphType){
                 case 'TIME':
                     xlabel = "set xlabel \\\"Seconds\\\" "
-                    setTitle = "set title \\\"Time For Each API Test (Plot Points show total time for all tests)\\\" "
+                    setTitle = "set title \\\"Time For Each API Test (Plot Points show time for each request in milliseconds)\\\" "
                     gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "every 3::0 using 1:3:2 with labels center boxed notitle"
+                    pointLabel = "every 3::0 using 1:3:8 with labels center boxed notitle"
                     range = "1:3:1"
                     break
                 case 'TOTALTIME':
-                    xlabel = "set xlabel \\\"Total Seconds (Plot Points show time for each tests)\\\" "
+                    xlabel = "set xlabel \\\"Total Seconds (Plot Points show time for each request in milliseconds)\\\" "
                     setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests\\\" "
                     gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "every 5::0 using 2:3:1 with labels center boxed notitle"
+                    pointLabel = "every 5::0 using 2:3:8 with labels center boxed notitle"
                     range = "2:3:2"
                     break
             }
