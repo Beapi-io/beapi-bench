@@ -2,7 +2,7 @@
 
 # beapi-bench
 
-Command line Benchmarking tool for apis. Allows users to set concurrency/requests and runs set number of tests to BOMBARD endpoint to see how it will respond. This is helpfull for numerous reasons:
+Command line Benchmarking tool for apis. Allows users to set concurrency/requests and runs set number of tests to BOMBARD endpoint to see how it will respond. This is helpful for numerous reasons:
 
 - creating more stable/scalable configuration for application server(ie garbage collection, threading, synchronization of threads, etc)
 - find bottlenecks and issues at points of scale
@@ -20,7 +20,8 @@ sudo apt install apache-utils
 sudo apt-install gnuplot
 ~~~~
 
-Download & Install script locally and make script executable then run like so:
+## Usage 
+Download & Install script locally and make script executable (chmod 775 BeapiBench.groovy) then run like so:
 ~~~~
 ./BeapiBench.groovy -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
@@ -36,11 +37,11 @@ or use shorthand like so...
 ## Graph Types 
 - TIME (-g TIME) : This test is perfect for showing 'rampup' from ZERO. If you have a server that just started up and you want to test how quickly it ramps up, this is the test you run. This shows 'requests per second / time taken for entire test'
 
-![alt text](https://github.com/orubel/logos/blob/master/beapibench2.png)
+![alt text](https://github.com/orubel/logos/blob/master/bench_time.png)
 
 - TOTALTIME (-g TOTALTIME) : This is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
 
-![alt text](https://github.com/orubel/logos/blob/master/beapibench.png)
+![alt text](https://github.com/orubel/logos/blob/master/bench_alltime.png)
 
 ## Is there a good concurrency to requests ratio I should use?
 This is a VERY common question and I generally use a concurrency that is 2.5 - 5% of the number of requests. You don't have to be exact but be aware that higher concurrency changes how many new threads will be spawned early on.
