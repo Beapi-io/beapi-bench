@@ -222,23 +222,27 @@ enum CommandLineInterface{
             // call method; move this to method
             print("[TEST ${i+1} of ${this.testSize}] : ")
             List returnData = callApi(this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint)
-            if (data.size() > 0) {
-                DecimalFormat df = new DecimalFormat("0.00")
-                int size = data.size() - 1
+            if(!returnData.isEmpty()) {
+                if (data.size() > 0) {
+                    DecimalFormat df = new DecimalFormat("0.00")
+                    int size = data.size() - 1
 
-                // TODO: will fail here if tests fail; need to create a way to continue; test returnData
+                    // TODO: will fail here if tests fail; need to create a way to continue; test returnData
 
-                Float floatTemp1 = Float.parseFloat(returnData[1])
-                Float floatTemp2 = Float.parseFloat(data[size][1])
-                String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
-                List temp = [returnData[1], floatTemp3, returnData[2]]
-                data.add(temp)
+                    Float floatTemp1 = Float.parseFloat(returnData[1])
+                    Float floatTemp2 = Float.parseFloat(data[size][1])
+                    String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
+                    List temp = [returnData[1], floatTemp3, returnData[2]]
+                    data.add(temp)
 
-                this.totalTime = Float.parseFloat(floatTemp3)
-            } else {
-                // time/totaltime/rps
-                List temp = [returnData[1], returnData[1], returnData[2]]
-                data.add(temp)
+                    this.totalTime = Float.parseFloat(floatTemp3)
+                } else {
+                    // time/totaltime/rps
+                    List temp = [returnData[1], returnData[1], returnData[2]]
+                    data.add(temp)
+                }
+            }else{
+                println(" TEST FAILED. Set concurrency/requests lower or change server config.")
             }
 
             float waitTime = Float.parseFloat(returnData[1])
@@ -260,15 +264,12 @@ enum CommandLineInterface{
         }
 
         // CREATE GRAPH
+        String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
         if(this.graphType!='ALL') {
-            String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
             createChart(this.graphType,"${title}")
         }else{
-            String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
             createChart('TOTALTIME',"${title}")
-
-            String title2 = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
-            createChart('TIME',"${title2}")
+            createChart('TIME',"${title}")
         }
     }
 
@@ -343,23 +344,23 @@ enum CommandLineInterface{
             switch(graphType){
                 case 'TIME':
                     xlabel = "set xlabel \\\"Seconds\\\" "
-                    setTitle = "set title \\\"Time For Each API Test\\\" "
+                    setTitle = "set title \\\"Time For Each API Test (Plot Points show total time for all tests)\\\" "
                     gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
                     pointLabel = "every 3::0 using 1:3:2 with labels center boxed notitle"
                     range = "1:3:1"
                     break
                 case 'TOTALTIME':
-                    xlabel = "set xlabel \\\"Total Seconds\\\" "
+                    xlabel = "set xlabel \\\"Total Seconds (Plot Points show time for each tests)\\\" "
                     setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests\\\" "
                     gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "every 3::0 using 2:3:1 with labels center boxed notitle"
+                    pointLabel = "every 5::0 using 2:3:1 with labels center boxed notitle"
                     range = "2:3:2"
                     break
             }
 
             String plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\""
             String bench = "gnuplot -p -e \"${gridX};${gridY};${xlabel};${ylabel};${setTitle};${key};${style};${plot},      ''          ${pointLabel};\""
-            //println(bench)
+            println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
