@@ -21,7 +21,7 @@ sudo apt-install gnuplot
 ~~~~
 
 ## Usage 
-Download & Install script locally and make script executable then run like so:
+Download & Install script locally and make script executable (chmod 775 BeapiBench.groovy) then run like so:
 ~~~~
 ./BeapiBench.groovy -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
