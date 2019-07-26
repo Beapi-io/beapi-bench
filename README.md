@@ -40,7 +40,7 @@ or use shorthand like so...
 
 - TOTALTIME (-g TOTALTIME) : This is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
 
-![alt text](https://github.com/orubel/logos/blob/master/beapi_alltime.png)
+![alt text](https://github.com/orubel/logos/blob/master/bench_alltime.png)
 
 ## Is there a good concurrency to requests ratio I should use?
 This is a VERY common question and I generally use a concurrency that is 2.5 - 5% of the number of requests. You don't have to be exact but be aware that higher concurrency changes how many new threads will be spawned early on.
