@@ -220,7 +220,7 @@ enum CommandLineInterface{
         List data = []
         while (i < this.testSize) {
             // call method; move this to method
-            print("[TEST ${i+1} of ${this.testSize}] ")
+            print("[TEST ${i+1} of ${this.testSize}] : ")
             List returnData = callApi(this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint)
             if (data.size() > 0) {
                 DecimalFormat df = new DecimalFormat("0.00")
@@ -279,7 +279,7 @@ enum CommandLineInterface{
 
     }
 
-    protected List callApi(Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint){
+    protected List callApi(Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint) {
         String bench = "ab -c ${concurrency} -n ${requests} -H 'Content-Type: ${contentType}' -H'Authorization: Bearer ${token}' -m ${method} ${endpoint}"
         def proc = ['bash', '-c', bench].execute()
         proc.waitFor()
@@ -288,34 +288,38 @@ enum CommandLineInterface{
         def error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
-        List<String> returnData = [0,0,0]
+        List<String> returnData = [0, 0, 0]
+        String finalOutput = ""
         if (output) {
             List lines = output.readLines()
-            lines.each(){ it2 ->
-                if (it2 =~ /Document Length/) {
-                    List temp = it2.split(':')
-                    String temp2 = temp[1].trim()
-                    List temp3 = temp2.split(' ')
-                    Float temp4 = Float.parseFloat(temp3[0])
-                    returnData[0] = df.format(temp4)
-                    print(" : ${df.format(temp4)} bytes/")
+            lines.each() { it2 ->
+                if(it2.trim()) {
+                    finalOutput += it2 + " "
                 }
-                if (it2 =~ /Time taken for tests/) {
-                    List temp = it2.split(':')
-                    String temp2 = temp[1].trim()
-                    List temp3 = temp2.split(' ')
-                    Float temp4 = Float.parseFloat(temp3[0])
-                    returnData[1] = df.format(temp4)
-                    print("${df.format(temp4)} secs/")
-                }
-                if (it2 =~ /Requests per second/) {
-                    List temp = it2.split(':')
-                    String temp2 = temp[1].trim()
-                    List temp3 = temp2.split(' ')
-                    Float temp4 = Float.parseFloat(temp3[0])
-                    returnData[2] = df.format(temp4)
-                    println("${df.format(temp4)} rps")
-                }
+            }
+
+            def group = (finalOutput =~ /Document Length:        ([0-9]+) bytes Concurrency Level:      ([0-9]+) Time taken for tests:   ([0-9\.]+) seconds Complete requests:      ([0-9]+) Failed requests:        ([0-9]+) Total transferred:      ([0-9]+) bytes HTML transferred:       ([0-9]+) bytes Requests per second:    ([0-9\.]+) \[#\/sec\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean, across all concurrent requests\) Transfer rate:          ([0-9\.]+) \[Kbytes\/sec\] received/)
+            if (group.hasGroup() && group.size() > 0) {
+                println("${group[0][1]}  bytes/${group[0][3]} secs/${group[0][8]} rps")
+
+                // Document Length
+                returnData[0] = df.format(Float.parseFloat(group[0][1]))
+                // Time taken for tests
+                returnData[1] = df.format(Float.parseFloat(group[0][3]))
+                // Requests per second
+                returnData[2] = df.format(Float.parseFloat(group[0][8]))
+                // tests succeeded
+                returnData[3] = df.format(Float.parseFloat(group[0][4]))
+                // tests failed
+                returnData[4] = df.format(Float.parseFloat(group[0][5]))
+                // total data transferred (bytes)
+                returnData[5] = df.format(Float.parseFloat(group[0][6]))
+                // HTML transferred (bytes)
+                returnData[6] = df.format(Float.parseFloat(group[0][7]))
+                // time per request [ms]
+                returnData[7] = df.format(Float.parseFloat(group[0][10]))
+                // transfer rate
+                returnData[8] = df.format(Float.parseFloat(group[0][11]))
             }
         } else {
             println("[ERROR: apiBench]:  Error message follows : " + error)
