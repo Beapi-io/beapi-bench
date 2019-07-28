@@ -51,7 +51,7 @@ enum CommandLineInterface{
     Float totalTime
     Integer testSize = 50
     Integer testTime = 60
-
+    String postData
 
     CliBuilder cliBuilder
 
@@ -81,8 +81,9 @@ enum CommandLineInterface{
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
             n(longOpt:'requests',args:2, valueSeparator:'=',argName:'property=value', 'requests to make per test run (usage: -n 1000, --requests=1000)')
             t(longOpt:'token',args:2, valueSeparator:'=',argName:'property=value', 'JWT bearer token (usage: -t wer4t56g356g356h35h, --token=wer4t56g356g356h35h)')
-            p(longOpt:'header',args:2, valueSeparator:'=',argName:'property=value', 'optional header to pass (usage: -p <header>, --header=<header>)')
+            z(longOpt:'header',args:2, valueSeparator:'=',argName:'property=value', 'optional header to pass (usage: -p <header>, --header=<header>)')
             j(longOpt:'contenttype',args:2, valueSeparator:'=',argName:'property=value', "content-type header; defaults to 'application/json' (usage: -c application/xml, --contenttype=application-xml)")
+            p(longOpt:'postData',args:2, valueSeparator:'=',argName:'property=value', 'txt file supplying POST data (usage: -p post.txt )')
 
             // GRAPH OPTS
 
@@ -183,11 +184,14 @@ enum CommandLineInterface{
             if (options.t) {
                 this.token = options.t.trim()
             }
-            if (options.p) {
-                options.p.each() {
+            if (options.z) {
+                options.z.each() {
                     this.headers.add(it.trim())
 
                 }
+            }
+            if (options.p) {
+                this.postData = options.p.trim()
             }
             if (options.j) {
                 this.contentType = options.j.trim()
@@ -226,7 +230,7 @@ enum CommandLineInterface{
         while (i < this.testSize) {
             // call method; move this to method
             print("[TEST ${i+1} of ${this.testSize}] : ")
-            List returnData = callApi(this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint)
+            List returnData = callApi(this.postData, this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint)
             if(!returnData.isEmpty()) {
                 if (data.size() > 0) {
                     DecimalFormat df = new DecimalFormat("0.00")
@@ -287,8 +291,12 @@ enum CommandLineInterface{
 
     }
 
-    protected List callApi(Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint) {
-        String bench = "ab -c ${concurrency} -n ${requests} -H 'Content-Type: ${contentType}' -H'Authorization: Bearer ${token}' -m ${method} ${endpoint}"
+    protected List callApi(String postData, Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint) {
+        String bench = "ab -c ${concurrency} -n ${requests}"
+        if(postData){ bench += " -p ${this.postData}" }
+        if(contentType){ bench +=  " -H 'Content-Type: ${contentType}'" }
+        if(token){ bench +=  " -H'Authorization: Bearer ${token}'" }
+        bench += " -m ${method} ${endpoint}"
         def proc = ['bash', '-c', bench].execute()
         proc.waitFor()
         DecimalFormat df = new DecimalFormat("0.00")
