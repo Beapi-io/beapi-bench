@@ -60,6 +60,7 @@ OPTIONS:
                                      TOTALTIME)
  -h,--help                           Print this help text and exit (usage: -h,
                                      --help)
+    --hardcore                       No pause between tests
  -j,--contenttype <property=value>   content-type header; defaults to
                                      'application/json' (usage: -c
                                      application/xml,
@@ -68,16 +69,19 @@ OPTIONS:
                                      (GET/PUT/POST/DELETE)
  -n,--requests <property=value>      requests to make per test run (usage: -n
                                      1000, --requests=1000)
- -p,--header <property=value>        optional header to pass (usage: -p
-                                     <header>, --header=<header>)
+ -p,--postData <property=value>      txt file supplying POST data (usage: -p
+                                     post.txt )
  -t,--token <property=value>         JWT bearer token (usage: -t
                                      wer4t56g356g356h35h,
                                      --token=wer4t56g356g356h35h)
     --testnum <property=value>       number of tests to run; defaults to 50
                                      (usage: --testNum=100)
+ -z,--header <property=value>        optional header to pass (usage: -p
+                                     <header>, --header=<header>)
 BeapiBench is a tool for benchmarking and graphing api's. It requires that both
 ApacheBench (ab) and gnuplot be preinstalled and available to run. Please make
 sure these are available and installed via your repository. If you have any
 questions, please visit us a http://beapi.io. Thanks again.
+
 ~~~~
 
