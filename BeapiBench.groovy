@@ -81,7 +81,7 @@ enum CommandLineInterface{
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
             n(longOpt:'requests',args:2, valueSeparator:'=',argName:'property=value', 'requests to make per test run (usage: -n 1000, --requests=1000)')
             t(longOpt:'token',args:2, valueSeparator:'=',argName:'property=value', 'JWT bearer token (usage: -t wer4t56g356g356h35h, --token=wer4t56g356g356h35h)')
-            z(longOpt:'header',args:2, valueSeparator:'=',argName:'property=value', 'optional header to pass (usage: -p <header>, --header=<header>)')
+            H(longOpt:'header',args:2, valueSeparator:'=',argName:'property=value', 'optional header to pass (usage: -p <header>, --header=<header>)')
             j(longOpt:'contenttype',args:2, valueSeparator:'=',argName:'property=value', "content-type header; defaults to 'application/json' (usage: -c application/xml, --contenttype=application-xml)")
             p(longOpt:'postData',args:2, valueSeparator:'=',argName:'property=value', 'txt file supplying POST data (usage: -p post.txt )')
 
@@ -184,8 +184,8 @@ enum CommandLineInterface{
             if (options.t) {
                 this.token = options.t.trim()
             }
-            if (options.z) {
-                options.z.each() {
+            if (options.H) {
+                options.H.each() {
                     this.headers.add(it.trim())
 
                 }
