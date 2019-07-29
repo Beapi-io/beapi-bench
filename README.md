@@ -76,7 +76,7 @@ OPTIONS:
                                      --token=wer4t56g356g356h35h)
     --testnum <property=value>       number of tests to run; defaults to 50
                                      (usage: --testNum=100)
- -z,--header <property=value>        optional header to pass (usage: -p
+ -H,--header <property=value>        optional header to pass (usage: -H
                                      <header>, --header=<header>)
 BeapiBench is a tool for benchmarking and graphing api's. It requires that both
 ApacheBench (ab) and gnuplot be preinstalled and available to run. Please make
