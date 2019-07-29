@@ -230,7 +230,7 @@ enum CommandLineInterface{
         while (i < this.testSize) {
             // call method; move this to method
             print("[TEST ${i+1} of ${this.testSize}] : ")
-            List returnData = callApi(this.postData, this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint)
+            List returnData = callApi(this.postData, this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint, this.headers)
             if(!returnData.isEmpty()) {
                 if (data.size() > 0) {
                     DecimalFormat df = new DecimalFormat("0.00")
@@ -291,11 +291,17 @@ enum CommandLineInterface{
 
     }
 
-    protected List callApi(String postData, Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint) {
+    protected List callApi(String postData, Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint, List headers) {
         String bench = "ab -c ${concurrency} -n ${requests}"
         if(postData){ bench += " -p ${this.postData}" }
         if(contentType){ bench +=  " -H 'Content-Type: ${contentType}'" }
-        if(token){ bench +=  " -H'Authorization: Bearer ${token}'" }
+        if(token){ bench +=  " -H 'Authorization: Bearer ${token}'" }
+        if(headers){
+            headers.each(){
+                bench +=  " -H '${it}'"
+            }
+        }
+
         bench += " -m ${method} ${endpoint}"
         def proc = ['bash', '-c', bench].execute()
         proc.waitFor()
