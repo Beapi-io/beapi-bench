@@ -81,7 +81,7 @@ enum CommandLineInterface{
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
             n(longOpt:'requests',args:2, valueSeparator:'=',argName:'property=value', 'requests to make per test run (usage: -n 1000, --requests=1000)')
             t(longOpt:'token',args:2, valueSeparator:'=',argName:'property=value', 'JWT bearer token (usage: -t wer4t56g356g356h35h, --token=wer4t56g356g356h35h)')
-            H(longOpt:'header',args:2, valueSeparator:'=',argName:'property=value', 'optional header to pass (usage: -p <header>, --header=<header>)')
+            H(longOpt:'header',args:2, valueSeparator:'=',argName:'property=value', 'optional header to pass (usage: -H <header>, --header=<header>)')
             j(longOpt:'contenttype',args:2, valueSeparator:'=',argName:'property=value', "content-type header; defaults to 'application/json' (usage: -c application/xml, --contenttype=application-xml)")
             p(longOpt:'postData',args:2, valueSeparator:'=',argName:'property=value', 'txt file supplying POST data (usage: -p post.txt )')
 
@@ -269,7 +269,7 @@ enum CommandLineInterface{
         // CREATE DATA FILE
         File apiBenchData = new File("${this.tmpPath}")
         if (apiBenchData.exists() && apiBenchData.canRead()) { apiBenchData.delete() }
-        apiBenchData.append('# doc   sum   time   rps   success   fail   data   html   tpr   transferrate\n')
+        apiBenchData.append('# doc   sum   time   rps   success   fail   data   html   tpr   transferrate   connect   processing   waiting   ttime\n')
         data.each() {
             apiBenchData.append '   '
             apiBenchData.append it.join('   ')
@@ -321,31 +321,47 @@ enum CommandLineInterface{
             }
 
 
-            def group = (finalOutput =~ /Document Length:        ([0-9]+) bytes Concurrency Level:      ([0-9]+) Time taken for tests:   ([0-9\.]+) seconds Complete requests:      ([0-9]+) Failed requests:        ([0-9]+) Total transferred:      ([0-9]+) bytes HTML transferred:       ([0-9]+) bytes Requests per second:    ([0-9\.]+) \[#\/sec\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean, across all concurrent requests\) Transfer rate:          ([0-9\.]+) \[Kbytes\/sec\] received/)
-            if (group.hasGroup() && group.size() > 0) {
-                println("[${group[0][1]}  bytes / ${group[0][11]} kb/s] : ${group[0][3]} secs/${group[0][8]} rps")
+                def group = (finalOutput =~ /Document Length:        ([0-9]+) bytes Concurrency Level:      ([0-9]+) Time taken for tests:   ([0-9\.]+) seconds Complete requests:      ([0-9]+) Failed requests:        ([0-9]+) Total transferred:      ([0-9]+) bytes HTML transferred:       ([0-9]+) bytes Requests per second:    ([0-9\.]+) \[#\\/sec\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean, across all concurrent requests\) Transfer rate:          ([0-9\.]+) \[Kbytes\\/sec\] received Connection Times \(ms\)               min  mean\[\+\\/-sd\] median   max Connect: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+) Processing: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+) Waiting: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+) Total: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+)/)
+                if (group.hasGroup() && group.size() > 0) {
+                    println("[${group[0][1]}  bytes / ${group[0][11]} kb/s] : ${group[0][3]} secs/${group[0][8]} rps")
+                    // Document Length
+                    returnData[0] = df.format(Float.parseFloat(group[0][1].trim()))
+                    // Time taken for tests
+                    returnData[1] = df.format(Float.parseFloat(group[0][3]))
+                    // Requests per second
+                    returnData[2] = df.format(Float.parseFloat(group[0][8]))
+                    // tests succeeded
+                    returnData[3] = df.format(Float.parseFloat(group[0][4]))
+                    // tests failed
+                    returnData[4] = df.format(Float.parseFloat(group[0][5]))
+                    // total data transferred (bytes)
+                    returnData[5] = df.format(Float.parseFloat(group[0][6]))
+                    // HTML transferred (bytes)
+                    returnData[6] = df.format(Float.parseFloat(group[0][7]))
+                    // time per request [ms]
+                    returnData[7] = df.format(Float.parseFloat(group[0][10]))
+                    // transfer rate
+                    returnData[8] = df.format(Float.parseFloat(group[0][11]))
 
-                // Document Length
-                returnData[0] = df.format(Float.parseFloat(group[0][1]))
-                // Time taken for tests
-                returnData[1] = df.format(Float.parseFloat(group[0][3]))
-                // Requests per second
-                returnData[2] = df.format(Float.parseFloat(group[0][8]))
-                // tests succeeded
-                returnData[3] = df.format(Float.parseFloat(group[0][4]))
-                // tests failed
-                returnData[4] = df.format(Float.parseFloat(group[0][5]))
-                // total data transferred (bytes)
-                returnData[5] = df.format(Float.parseFloat(group[0][6]))
-                // HTML transferred (bytes)
-                returnData[6] = df.format(Float.parseFloat(group[0][7]))
-                // time per request [ms]
-                returnData[7] = df.format(Float.parseFloat(group[0][10]))
-                // transfer rate
-                returnData[8] = df.format(Float.parseFloat(group[0][11]))
-            }else{
-                println("[ERROR: apiBench]:  Error message follows : " + error)
-            }
+                    // Connect:      Most typically the network latency
+                    //List connect = [Float.parseFloat(group[0][12].trim()), Float.parseFloat(group[0][13].trim()), Float.parseFloat(group[0][14].trim()), Float.parseFloat(group[0][15].trim()), Float.parseFloat(group[0][16].trim())]
+                    returnData[9] = df.format(Float.parseFloat(group[0][13].trim()))
+
+                    // Processing:   Time to receive full response after connection was opened
+                    //List processing = [Float.parseFloat(group[0][17]), Float.parseFloat(group[0][18].trim()), Float.parseFloat(group[0][19].trim()), Float.parseFloat(group[0][20].trim()), Float.parseFloat(group[0][21].trim())]
+                    returnData[10] = df.format(Float.parseFloat(group[0][19].trim()))
+
+                    // Waiting:      Time-to-first-byte after the request was sent
+                    //List waiting = [Float.parseFloat(group[0][22]), Float.parseFloat(group[0][23].trim()), Float.parseFloat(group[0][24].trim()), Float.parseFloat(group[0][25].trim()), Float.parseFloat(group[0][26].trim())]
+                    returnData[11] = df.format(Float.parseFloat(group[0][24].trim()))
+
+                    // Total time
+                    //List ttime = [Float.parseFloat(group[0][27]), Float.parseFloat(group[0][28].trim()), Float.parseFloat(group[0][29].trim()), Float.parseFloat(group[0][30].trim()), Float.parseFloat(group[0][31].trim())]
+                    returnData[12] = df.format(Float.parseFloat(group[0][29].trim()))
+
+                }else{
+                    println("[REGEX ERROR: apiBench]:  Cannot match output")
+                }
         } else {
             println("[ERROR: apiBench]:  Error message follows : " + error)
         }
@@ -382,6 +398,8 @@ enum CommandLineInterface{
                     pointLabel = "every 5::0 using 2:3:8 with labels center boxed notitle"
                     range = "2:3:2"
                     break
+                case 'IO':
+                    break;
             }
 
             String plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\""
