@@ -1,8 +1,4 @@
 #!/usr/bin/env groovy
-@Grab(group='commons-cli', module='commons-cli', version='1.4')
-
-import groovy.json.JsonSlurper
-import java.text.DecimalFormat
 
 /*
  * Copyright 2013-2019 Beapi.io
@@ -16,6 +12,13 @@ import java.text.DecimalFormat
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@Grab(group='commons-cli', module='commons-cli', version='1.4')
+
+import groovy.json.JsonSlurper
+import java.text.DecimalFormat
+
+
 class BeapiBench {
 
 
@@ -35,7 +38,7 @@ enum CommandLineInterface{
 
     private List methods = ['GET', 'PUT', 'POST', 'DELETE']
     protected String method
-    private List graphTypes = ['TIME','TOTALTIME','ALL']
+    private List graphTypes = ['TIME','TOTALTIME','IO','ALL']
     protected String graphType = 'TIME'
     protected String endpoint
     protected Integer concurrency = 50
@@ -232,25 +235,24 @@ enum CommandLineInterface{
             print("[TEST ${i+1} of ${this.testSize}] : ")
             List returnData = callApi(this.postData, this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint, this.headers)
             if(!returnData.isEmpty()) {
+                DecimalFormat df = new DecimalFormat("0.00")
                 if (data.size() > 0) {
-                    DecimalFormat df = new DecimalFormat("0.00")
                     int size = data.size() - 1
-
                     // TODO: will fail here if tests fail; need to create a way to continue; test returnData
-                    try {
+                    //try {
                         Float floatTemp1 = Float.parseFloat(returnData[1])
                         Float floatTemp2 = Float.parseFloat(data[size][1])
-                        String floatTemp3 = Float.sum(floatTemp1, floatTemp2) as String
-                        List temp = [returnData[1], floatTemp3, returnData[2], Float.parseFloat(returnData[3]), Float.parseFloat(returnData[4]), Float.parseFloat(returnData[5]), Float.parseFloat(returnData[6]), Float.parseFloat(returnData[7]), Float.parseFloat(returnData[8])]
+                        Float floatTemp3 = Float.sum(floatTemp1, floatTemp2)
+                        List temp = [returnData[1], df.format(floatTemp3), returnData[2], df.format(Float.parseFloat(returnData[3])), df.format(Float.parseFloat(returnData[4])), df.format(Float.parseFloat(returnData[5])), df.format(Float.parseFloat(returnData[6])), df.format(Float.parseFloat(returnData[7])), df.format(Float.parseFloat(returnData[8])),returnData[9],returnData[10],returnData[11],returnData[12]]
                         data.add(temp)
 
-                        this.totalTime = Float.parseFloat(floatTemp3)
-                    }catch(Exception e){
-                        println("${returnData} :" +e)
-                    }
+                        this.totalTime = floatTemp3
+                    //}catch(Exception e){
+                    //    println("${returnData} :" +e)
+                    //}
                 } else {
                     // time/totaltime/rps
-                    List temp = [returnData[1], returnData[1], returnData[2],returnData[3],returnData[4],returnData[5],returnData[6],returnData[7],returnData[8]]
+                    List temp = [returnData[1], returnData[1], returnData[2],returnData[3],returnData[4],returnData[5],returnData[6],returnData[7],returnData[8],returnData[9],returnData[10],returnData[11],returnData[12]]
                     data.add(temp)
                 }
             }else{
@@ -270,10 +272,12 @@ enum CommandLineInterface{
         File apiBenchData = new File("${this.tmpPath}")
         if (apiBenchData.exists() && apiBenchData.canRead()) { apiBenchData.delete() }
         apiBenchData.append('# doc   sum   time   rps   success   fail   data   html   tpr   transferrate   connect   processing   waiting   ttime\n')
+
         data.each() {
             apiBenchData.append '   '
             apiBenchData.append it.join('   ')
             apiBenchData.append '\n'
+            i++
         }
 
         // CREATE GRAPH
@@ -281,8 +285,11 @@ enum CommandLineInterface{
         if(this.graphType!='ALL') {
             createChart(this.graphType,"${title}")
         }else{
-            createChart('TOTALTIME',"${title}")
-            createChart('TIME',"${title}")
+            this.graphTypes.each(){
+                if(it!='ALL'){
+                    createChart("${it}","${title}")
+                }
+            }
         }
     }
 
@@ -343,17 +350,22 @@ enum CommandLineInterface{
                     // transfer rate
                     returnData[8] = df.format(Float.parseFloat(group[0][11]))
 
+
                     // Connect:      Most typically the network latency
                     //List connect = [Float.parseFloat(group[0][12].trim()), Float.parseFloat(group[0][13].trim()), Float.parseFloat(group[0][14].trim()), Float.parseFloat(group[0][15].trim()), Float.parseFloat(group[0][16].trim())]
+
                     returnData[9] = df.format(Float.parseFloat(group[0][13].trim()))
+                    println("### connect: ${returnData[9]}")
 
                     // Processing:   Time to receive full response after connection was opened
                     //List processing = [Float.parseFloat(group[0][17]), Float.parseFloat(group[0][18].trim()), Float.parseFloat(group[0][19].trim()), Float.parseFloat(group[0][20].trim()), Float.parseFloat(group[0][21].trim())]
                     returnData[10] = df.format(Float.parseFloat(group[0][19].trim()))
+                    println("### processing:"+returnData[10])
 
                     // Waiting:      Time-to-first-byte after the request was sent
                     //List waiting = [Float.parseFloat(group[0][22]), Float.parseFloat(group[0][23].trim()), Float.parseFloat(group[0][24].trim()), Float.parseFloat(group[0][25].trim()), Float.parseFloat(group[0][26].trim())]
                     returnData[11] = df.format(Float.parseFloat(group[0][24].trim()))
+                    //println("### waiting:"+returnData[9])
 
                     // Total time
                     //List ttime = [Float.parseFloat(group[0][27]), Float.parseFloat(group[0][28].trim()), Float.parseFloat(group[0][29].trim()), Float.parseFloat(group[0][30].trim()), Float.parseFloat(group[0][31].trim())]
@@ -373,37 +385,66 @@ enum CommandLineInterface{
         try{
             println("[tmp gnuplot file] >> "+this.tmpPath)
 
-            String key = "set key left bottom"
-            String style = "set style textbox opaque"
-            String gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-            String gridX
+            String key = "set key left top;"
+            String style = "set style textbox opaque;"
+            String gridY = ""
+            String gridX = ""
             String range
             String pointLabel
-            String setTitle
-            String ylabel = "set ylabel \\\"RPS For Each Test\\\" "
-            String xlabel
+            String setTitle = ""
+            String ylabel = ""
+            String xlabel = ""
+            String plot
 
             switch(graphType){
                 case 'TIME':
-                    xlabel = "set xlabel \\\"Seconds To Do ${this.requests} Requests\\\" "
-                    setTitle = "set title \\\"Time For Each API Test  (Plot Points show time for each request in milliseconds)\\\" "
-                    gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "every 3::0 using 1:3:8 with labels center boxed notitle"
-                    range = "1:3:1"
-                    break
                 case 'TOTALTIME':
-                    xlabel = "set xlabel \\\"Total Seconds For Tests\\\" "
-                    setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests (Plot Points show time for each request in milliseconds)\\\" "
-                    gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0"
-                    pointLabel = "every 5::0 using 2:3:8 with labels center boxed notitle"
-                    range = "2:3:2"
+                    style = "set style textbox opaque;"
+                    ylabel = "set ylabel \\\"RPS For Each Test\\\" ;"
+                    switch(graphType){
+                        case 'TIME':
+                            //set output 'beapi_chart1.png'
+                            xlabel = "set xlabel \\\"Seconds To Do ${this.requests} Requests\\\" ;"
+                            setTitle = "set title \\\"Time For Each API Test  (Plot Points show time for each request in ms)\\\" ;"
+                            gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
+                            gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
+                            // 3::0 sets every 3rd tic / 1:3:8 (x-range, y-range, string)
+                            pointLabel = "every 3::0 using 1:3:8 with labels center boxed notitle"
+                            range = "1:3:1"
+                            break
+                        case 'TOTALTIME':
+                            //set output 'beapi_chart2.png'
+                            xlabel = "set xlabel \\\"Total Seconds For Tests\\\" ;"
+                            setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests (Plot Points show time for each request in ms)\\\" ;"
+                            gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
+                            gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
+                            pointLabel = "every 5::0 using 2:3:8 with labels center boxed notitle"
+                            range = "2:3:2"
+                            break
+                    }
+                    plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\",      ''          ${pointLabel}"
                     break
                 case 'IO':
+                    gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
+                    style = "set style data histograms;set style histogram rowstacked;set boxwidth 1 relative; set style fill solid 1.0 border -1;"
+                    ylabel = "set ylabel \\\"Bar Chart Test\\\" ;"
+                    gridX = "set xrange [0:*];"
+
+                    //style = "set boxwidth 0.75; set style fill solid;"
+                    //ylabel = "set ylabel \\\"Bar Chart Test\\\" ;"
+                    //gridX = "set xrange [*:];set xtics rotate;"
+
+                    //set output 'beapi_chart3.png'
+
+
+                    plot = "plot '${this.tmpPath}' using 10 t \\\"connection time\\\", '' using 11 t \\\"processing\\\"; set yrange [GPVAL_DATA_Y_MIN:GPVAL_DATA_Y_MAX];replot;"
+                    //plot = "plot '${this.tmpPath}' using 0:10:xtic(10) with boxes title \\\"connection time\\\""
                     break;
+
+                break
             }
 
-            String plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\""
-            String bench = "gnuplot -p -e \"${gridX};${gridY};${xlabel};${ylabel};${setTitle};${key};${style};${plot},      ''          ${pointLabel};\""
+            String bench = "gnuplot -p -e \"${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
             println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
