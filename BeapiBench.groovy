@@ -273,8 +273,9 @@ enum CommandLineInterface{
         if (apiBenchData.exists() && apiBenchData.canRead()) { apiBenchData.delete() }
         apiBenchData.append('# doc   sum   time   rps   success   fail   data   html   tpr   transferrate   connect   processing   waiting   ttime\n')
 
+        i = 1
         data.each() {
-            apiBenchData.append '   '
+            apiBenchData.append "${i}   "
             apiBenchData.append it.join('   ')
             apiBenchData.append '\n'
             i++
@@ -365,7 +366,7 @@ enum CommandLineInterface{
                     // Waiting:      Time-to-first-byte after the request was sent
                     //List waiting = [Float.parseFloat(group[0][22]), Float.parseFloat(group[0][23].trim()), Float.parseFloat(group[0][24].trim()), Float.parseFloat(group[0][25].trim()), Float.parseFloat(group[0][26].trim())]
                     returnData[11] = df.format(Float.parseFloat(group[0][24].trim()))
-                    //println("### waiting:"+returnData[9])
+                    println("### waiting:"+returnData[11])
 
                     // Total time
                     //List ttime = [Float.parseFloat(group[0][27]), Float.parseFloat(group[0][28].trim()), Float.parseFloat(group[0][29].trim()), Float.parseFloat(group[0][30].trim()), Float.parseFloat(group[0][31].trim())]
@@ -409,8 +410,10 @@ enum CommandLineInterface{
                             gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
                             gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
                             // 3::0 sets every 3rd tic / 1:3:8 (x-range, y-range, string)
-                            pointLabel = "every 3::0 using 1:3:8 with labels center boxed notitle"
-                            range = "1:3:1"
+                            //pointLabel = "every 3::0 using 1:3:8 with labels center boxed notitle"
+                            pointLabel = "every 3::0 using 2:4:9 with labels center boxed notitle"
+                            //range = "1:3:1"
+                            range = "2:4:2"
                             break
                         case 'TOTALTIME':
                             //set output 'beapi_chart2.png'
@@ -418,27 +421,26 @@ enum CommandLineInterface{
                             setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests (Plot Points show time for each request in ms)\\\" ;"
                             gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
                             gridX = "set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
-                            pointLabel = "every 5::0 using 2:3:8 with labels center boxed notitle"
-                            range = "2:3:2"
+                            //pointLabel = "every 5::0 using 2:3:8 with labels center boxed notitle"
+                            pointLabel = "every 5::0 using 3:4:9 with labels center boxed notitle"
+                            //range = "2:3:2"
+                            range = "3:4:3"
                             break
                     }
                     plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\",      ''          ${pointLabel}"
                     break
                 case 'IO':
+                    key = "set key right top;"
                     gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
-                    style = "set style data histograms;set style histogram rowstacked;set boxwidth 1 relative; set style fill solid 1.0 border -1;"
+                    style = "set style data histograms;set style histogram rowstacked gap 10; set style fill solid 0.5 border -1;"
                     ylabel = "set ylabel \\\"Bar Chart Test\\\" ;"
-                    gridX = "set xrange [0:*];"
+                    gridX = "set xtics border in scale 0,0 nomirror center; set xrange [0:${this.testSize}] noreverse writeback;set x2range [ * : * ] noreverse writeback;"
 
-                    //style = "set boxwidth 0.75; set style fill solid;"
-                    //ylabel = "set ylabel \\\"Bar Chart Test\\\" ;"
-                    //gridX = "set xrange [*:];set xtics rotate;"
 
                     //set output 'beapi_chart3.png'
 
 
-                    plot = "plot '${this.tmpPath}' using 10 t \\\"connection time\\\", '' using 11 t \\\"processing\\\"; set yrange [GPVAL_DATA_Y_MIN:GPVAL_DATA_Y_MAX];replot;"
-                    //plot = "plot '${this.tmpPath}' using 0:10:xtic(10) with boxes title \\\"connection time\\\""
+                    plot = "plot '${this.tmpPath}' using 11 t \\\"connection time\\\", '' using 13 t \\\"waiting\\\", '' using 12:xtic(1) t \\\"processing\\\";"
                     break;
 
                 break
