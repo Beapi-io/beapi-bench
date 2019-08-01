@@ -431,10 +431,11 @@ enum CommandLineInterface{
                     break
                 case 'IO':
                     //set output 'beapi_chart3.png'
+                    xlabel = "set xlabel \\\"Test # of ${this.testSize} Tests\\\" ;"
                     key = "set key right top;"
                     gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
                     style = "set style data histograms;set style histogram rowstacked gap 10; set style fill solid 0.5 border -1;"
-                    ylabel = "set ylabel \\\"Bar Chart Test\\\" ;"
+                    ylabel = "set ylabel \\\"Total Time in Milliseconds\\\" ;"
                     gridX = "set xtics border in scale 0,0 nomirror center; set xrange [0:${this.testSize}] noreverse writeback;set x2range [ * : * ] noreverse writeback;"
                     plot = "plot '${this.tmpPath}' using 11 t \\\"connection time\\\", '' using 13 t \\\"waiting\\\", '' using 12:xtic(1) t \\\"processing\\\";"
                     break;
