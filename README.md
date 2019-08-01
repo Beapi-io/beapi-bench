@@ -35,15 +35,15 @@ or use shorthand like so...
 ~~~~
 
 ## Graph Types 
-- TIME (-g TIME) : This test is perfect for showing 'rampup' from ZERO. If you have a server that just started up and you want to test how quickly it ramps up, this is the test you run. This shows 'requests per second / time taken for entire test'
+- TIME (-g TIME) : This benchmark is perfect for showing 'rampup' from ZERO. If you have a server that just started up and you want to test how quickly it ramps up, this is the test you run. This shows 'requests per second / time taken for entire test'
 
 ![alt text](https://github.com/orubel/logos/blob/master/bench_time.png)
 
-- TOTALTIME (-g TOTALTIME) : This is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
+- TOTALTIME (-g TOTALTIME) : This benchmark is an all purpose test that can be run anytime and shows each test in comparison to all other tests. It shows 'requests per second / test current totaltime'
 
 ![alt text](https://github.com/orubel/logos/blob/master/bench_alltime.png)
 
-- IO (-g IO) : This test measures throughput and the time it takes for connect time, processing time and wait time (for data to be returned)
+- IO (-g IO) : This benchmark measures throughput and the time it takes for connect time, processing time and wait time (for data to be returned) in milliseconds per test
 
 ![alt text](https://github.com/orubel/logos/blob/master/IO.png)
 
