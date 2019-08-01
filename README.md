@@ -45,7 +45,7 @@ or use shorthand like so...
 
 - IO (-g IO) : This test measures throughput and the time it takes for connect time, processing time and wait time (for data to be returned)
 
-![alt text](https://github.com/orubel/logos/blob/master/io.png)
+![alt text](https://github.com/orubel/logos/blob/master/IO.png)
 
 ## Is there a good concurrency to requests ratio I should use?
 This is a VERY common question and I generally use a concurrency that is 2.5 - 5% of the number of requests. You don't have to be exact but be aware that higher concurrency changes how many new threads will be spawned early on.
