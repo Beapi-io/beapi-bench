@@ -356,17 +356,17 @@ enum CommandLineInterface{
                     //List connect = [Float.parseFloat(group[0][12].trim()), Float.parseFloat(group[0][13].trim()), Float.parseFloat(group[0][14].trim()), Float.parseFloat(group[0][15].trim()), Float.parseFloat(group[0][16].trim())]
 
                     returnData[9] = df.format(Float.parseFloat(group[0][13].trim()))
-                    println("### connect: ${returnData[9]}")
+                    //println("### connect: ${returnData[9]}")
 
                     // Processing:   Time to receive full response after connection was opened
                     //List processing = [Float.parseFloat(group[0][17]), Float.parseFloat(group[0][18].trim()), Float.parseFloat(group[0][19].trim()), Float.parseFloat(group[0][20].trim()), Float.parseFloat(group[0][21].trim())]
                     returnData[10] = df.format(Float.parseFloat(group[0][19].trim()))
-                    println("### processing:"+returnData[10])
+                    //println("### processing:"+returnData[10])
 
                     // Waiting:      Time-to-first-byte after the request was sent
                     //List waiting = [Float.parseFloat(group[0][22]), Float.parseFloat(group[0][23].trim()), Float.parseFloat(group[0][24].trim()), Float.parseFloat(group[0][25].trim()), Float.parseFloat(group[0][26].trim())]
                     returnData[11] = df.format(Float.parseFloat(group[0][24].trim()))
-                    println("### waiting:"+returnData[11])
+                    //println("### waiting:"+returnData[11])
 
                     // Total time
                     //List ttime = [Float.parseFloat(group[0][27]), Float.parseFloat(group[0][28].trim()), Float.parseFloat(group[0][29].trim()), Float.parseFloat(group[0][30].trim()), Float.parseFloat(group[0][31].trim())]
@@ -430,20 +430,14 @@ enum CommandLineInterface{
                     plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\",      ''          ${pointLabel}"
                     break
                 case 'IO':
+                    //set output 'beapi_chart3.png'
                     key = "set key right top;"
                     gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
                     style = "set style data histograms;set style histogram rowstacked gap 10; set style fill solid 0.5 border -1;"
                     ylabel = "set ylabel \\\"Bar Chart Test\\\" ;"
                     gridX = "set xtics border in scale 0,0 nomirror center; set xrange [0:${this.testSize}] noreverse writeback;set x2range [ * : * ] noreverse writeback;"
-
-
-                    //set output 'beapi_chart3.png'
-
-
                     plot = "plot '${this.tmpPath}' using 11 t \\\"connection time\\\", '' using 13 t \\\"waiting\\\", '' using 12:xtic(1) t \\\"processing\\\";"
                     break;
-
-                break
             }
 
             String bench = "gnuplot -p -e \"${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
