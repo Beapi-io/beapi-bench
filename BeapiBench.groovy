@@ -17,7 +17,7 @@
 
 import groovy.json.JsonSlurper
 import java.text.DecimalFormat
-
+import java.util.regex.Matcher
 
 class BeapiBench {
 
@@ -264,6 +264,7 @@ enum CommandLineInterface{
                 waitTime = ((waitTime * 1000) * 2) + 250
                 sleep(waitTime as Integer)
             }
+
             i++
         }
 
@@ -320,61 +321,66 @@ enum CommandLineInterface{
         String output = outputStream.toString()
         List<String> returnData = ['0', '0', '0', '0', '0', '0', '0', '0', '0']
         String finalOutput = ""
+        boolean non2xx = false
+        boolean non2xxData = false
         if (output) {
             List lines = output.readLines()
             lines.each() { it2 ->
                 if(it2.trim()) {
                     finalOutput += it2 + " "
+                    switch(it2){
+                        case ~/Document Length:        ([0-9]+) bytes/:
+                            //println "Document Length: ${Matcher.lastMatcher[0][1]}"
+                            returnData[0] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Time taken for tests:   ([0-9\.]+) seconds/:
+                            //println "Time taken for tests: ${Matcher.lastMatcher[0][1]}"
+                            returnData[1] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Complete requests:      ([0-9]+)/:
+                            //println "Complete requests: ${Matcher.lastMatcher[0][1]}"
+                            returnData[3] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Failed requests:        ([0-9]+)/:
+                            //println "Failed requests: ${Matcher.lastMatcher[0][1]}"
+                            returnData[4] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Total transferred:      ([0-9]+) bytes/:
+                            //println "Total transferred: ${Matcher.lastMatcher[0][1]}"
+                            returnData[5] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/HTML transferred:       ([0-9]+) bytes/:
+                            //println "HTML transferred: ${Matcher.lastMatcher[0][1]}"
+                            returnData[6] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Requests per second:    ([0-9\.]+) \[#\\/sec\] \(mean\)/:
+                            //println "Requests per second: ${Matcher.lastMatcher[0][1]}"
+                            returnData[2] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Time per request:       ([0-9\.]+) \[ms\] \(mean, across all concurrent requests\)/:
+                            //println "Time per request: ${Matcher.lastMatcher[0][1]}"
+                            returnData[7] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Transfer rate:          ([0-9\.]+) \[Kbytes\\/sec\] received\n/:
+                            //println "Transfer rate: ${Matcher.lastMatcher[0][1]}"
+                            returnData[8] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            break
+                        case ~/Connect: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+)/:
+                            returnData[9] = df.format(Float.parseFloat(Matcher.lastMatcher[0][2]))
+                            break
+                        case ~/Processing: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+)/:
+                            returnData[10] = df.format(Float.parseFloat(Matcher.lastMatcher[0][2]))
+                            break
+                        case ~/Waiting: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+)/:
+                            returnData[11] = df.format(Float.parseFloat(Matcher.lastMatcher[0][2]))
+                            break
+                        case ~/Total: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+)/:
+                            returnData[12] = df.format(Float.parseFloat(Matcher.lastMatcher[0][2]))
+                            break
+                    }
                 }
             }
-
-
-                def group = (finalOutput =~ /Document Length:        ([0-9]+) bytes Concurrency Level:      ([0-9]+) Time taken for tests:   ([0-9\.]+) seconds Complete requests:      ([0-9]+) Failed requests:        ([0-9]+) Total transferred:      ([0-9]+) bytes HTML transferred:       ([0-9]+) bytes Requests per second:    ([0-9\.]+) \[#\\/sec\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean\) Time per request:       ([0-9\.]+) \[ms\] \(mean, across all concurrent requests\) Transfer rate:          ([0-9\.]+) \[Kbytes\\/sec\] received Connection Times \(ms\)               min  mean\[\+\\/-sd\] median   max Connect: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+) Processing: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+) Waiting: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+) Total: ( *[0-9]+) ( *[0-9]+) ( *[0-9\.]+) ( *[0-9]+) ( *[0-9]+)/)
-                if (group.hasGroup() && group.size() > 0) {
-                    println("[${group[0][1]}  bytes / ${group[0][11]} kb/s] : ${group[0][3]} secs/${group[0][8]} rps")
-                    // Document Length
-                    returnData[0] = df.format(Float.parseFloat(group[0][1].trim()))
-                    // Time taken for tests
-                    returnData[1] = df.format(Float.parseFloat(group[0][3]))
-                    // Requests per second
-                    returnData[2] = df.format(Float.parseFloat(group[0][8]))
-                    // tests succeeded
-                    returnData[3] = df.format(Float.parseFloat(group[0][4]))
-                    // tests failed
-                    returnData[4] = df.format(Float.parseFloat(group[0][5]))
-                    // total data transferred (bytes)
-                    returnData[5] = df.format(Float.parseFloat(group[0][6]))
-                    // HTML transferred (bytes)
-                    returnData[6] = df.format(Float.parseFloat(group[0][7]))
-                    // time per request [ms]
-                    returnData[7] = df.format(Float.parseFloat(group[0][10]))
-                    // transfer rate
-                    returnData[8] = df.format(Float.parseFloat(group[0][11]))
-
-
-                    // Connect:      Most typically the network latency
-                    //List connect = [Float.parseFloat(group[0][12].trim()), Float.parseFloat(group[0][13].trim()), Float.parseFloat(group[0][14].trim()), Float.parseFloat(group[0][15].trim()), Float.parseFloat(group[0][16].trim())]
-
-                    returnData[9] = df.format(Float.parseFloat(group[0][13].trim()))
-                    //println("### connect: ${returnData[9]}")
-
-                    // Processing:   Time to receive full response after connection was opened
-                    //List processing = [Float.parseFloat(group[0][17]), Float.parseFloat(group[0][18].trim()), Float.parseFloat(group[0][19].trim()), Float.parseFloat(group[0][20].trim()), Float.parseFloat(group[0][21].trim())]
-                    returnData[10] = df.format(Float.parseFloat(group[0][19].trim()))
-                    //println("### processing:"+returnData[10])
-
-                    // Waiting:      Time-to-first-byte after the request was sent
-                    //List waiting = [Float.parseFloat(group[0][22]), Float.parseFloat(group[0][23].trim()), Float.parseFloat(group[0][24].trim()), Float.parseFloat(group[0][25].trim()), Float.parseFloat(group[0][26].trim())]
-                    returnData[11] = df.format(Float.parseFloat(group[0][24].trim()))
-                    //println("### waiting:"+returnData[11])
-
-                    // Total time
-                    //List ttime = [Float.parseFloat(group[0][27]), Float.parseFloat(group[0][28].trim()), Float.parseFloat(group[0][29].trim()), Float.parseFloat(group[0][30].trim()), Float.parseFloat(group[0][31].trim())]
-                    returnData[12] = df.format(Float.parseFloat(group[0][29].trim()))
-
-                }else{
-                    println("[REGEX ERROR: apiBench]:  Cannot match output")
-                }
+            println("[${returnData[0]}  bytes / ${returnData[8]} kb/s] : ${returnData[2]} rps")
         } else {
             println("[ERROR: apiBench]:  Error message follows : " + error)
         }
@@ -442,7 +448,7 @@ enum CommandLineInterface{
             }
 
             String bench = "gnuplot -p -e \"${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
-            println(bench)
+            // println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
