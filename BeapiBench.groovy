@@ -38,7 +38,7 @@ enum CommandLineInterface{
 
     private List methods = ['GET', 'PUT', 'POST', 'DELETE']
     protected String method
-    private List graphTypes = ['TIME','TOTALTIME','IO','ALL']
+    private List graphTypes = ['TIME','TOTALTIME','IO','SUCCESS_FAIL','ALL']
     protected String graphType = 'TIME'
     protected String endpoint
     protected Integer concurrency = 50
@@ -53,7 +53,6 @@ enum CommandLineInterface{
     boolean noHardcore = true
     Float totalTime
     Integer testSize = 50
-    Integer testTime = 60
     String postData
 
     CliBuilder cliBuilder
@@ -78,7 +77,7 @@ enum CommandLineInterface{
             _(longOpt:'endpoint',args:2, valueSeparator:'=',argName:'property=value', 'url for making the api call (usage: --endpoint=http://localhost:8080)')
             _(longOpt:'testnum',args:2, valueSeparator:'=',argName:'property=value', 'number of tests to run; defaults to 50 (usage: --testNum=100)')
             _(longOpt: 'hardcore', 'No pause between tests')
-            g(longOpt:'graphtype',args:2, valueSeparator:'=',argName:'property=value', 'type of graph to create: TIME / TOTALTIME / ALL; defaults to TESTTIME (usage: -g TOTALTIME)')
+            g(longOpt:'graphtype',args:2, valueSeparator:'=',argName:'property=value', 'type of graph to create: [TIME, TOTALTIME, IO, SUCCESS_FAIL, ALL]; defaults to TESTTIME (usage: -g TOTALTIME)')
 
             // OPTIONAL TEST OPTS
             c(longOpt:'concurrency',args:2, valueSeparator:'=',argName:'property=value', 'value for concurrent users per test run (usage: -c 50, --concurrency=50)')
@@ -285,8 +284,10 @@ enum CommandLineInterface{
         // CREATE GRAPH
         String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
         if(this.graphType!='ALL') {
+            println("[tmp gnuplot file] >> "+this.tmpPath)
             createChart(this.graphType,"${title}")
         }else{
+            println("[tmp gnuplot file] >> "+this.tmpPath)
             this.graphTypes.each(){
                 if(it!='ALL'){
                     createChart("${it}","${title}")
@@ -353,7 +354,7 @@ enum CommandLineInterface{
                             //println "HTML transferred: ${Matcher.lastMatcher[0][1]}"
                             returnData[6] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
                             break
-                        case ~/Requests per second:    ([0-9\.]+) \[#\\/sec\] \(mean\)/:
+                        case ~/Requests per second:    ([0-9\.]+) \[#\/sec\] \(mean\)/:
                             //println "Requests per second: ${Matcher.lastMatcher[0][1]}"
                             returnData[2] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
                             break
@@ -361,7 +362,7 @@ enum CommandLineInterface{
                             //println "Time per request: ${Matcher.lastMatcher[0][1]}"
                             returnData[7] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
                             break
-                        case ~/Transfer rate:          ([0-9\.]+) \[Kbytes\\/sec\] received\n/:
+                        case ~/Transfer rate:          ([0-9\.]+) \[Kbytes\/sec\] received/:
                             //println "Transfer rate: ${Matcher.lastMatcher[0][1]}"
                             returnData[8] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
                             break
@@ -390,8 +391,6 @@ enum CommandLineInterface{
 
     protected void createChart(String graphType, String title){
         try{
-            println("[tmp gnuplot file] >> "+this.tmpPath)
-
             String key = "set key left top;"
             String style = "set style textbox opaque;"
             String gridY = ""
@@ -445,6 +444,17 @@ enum CommandLineInterface{
                     gridX = "set xtics border in scale 0,0 nomirror center; set xrange [0:${this.testSize}] noreverse writeback;set x2range [ * : * ] noreverse writeback;"
                     plot = "plot '${this.tmpPath}' using 11 t \\\"connection time\\\", '' using 13 t \\\"waiting\\\", '' using 12:xtic(1) t \\\"processing\\\";"
                     break;
+                case 'SUCCESS_FAIL':
+                    //set output 'beapi_chart3.png'
+                    xlabel = "set xlabel \\\"Test # of ${this.testSize} Tests\\\" ;"
+                    key = "set key right top;"
+                    gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0; set yrange [0:${this.requests + (this.requests/2)}];"
+                    style = "set style data histograms;set style histogram rowstacked gap 10; set style fill solid 0.5 border -1;"
+                    ylabel = "set ylabel \\\"Total Number of Requests\\\" ;"
+                    gridX = "set xtics border in scale 0,0 nomirror center; set xrange [0:${this.testSize}] noreverse writeback;set x2range [ * : * ] noreverse writeback;"
+                    plot = "plot '${this.tmpPath}' using 5  every ::1 t \\\"successful requests\\\", '' using 6:xtic(1) t \\\"failed requests\\\";"
+                    break;
+
             }
 
             String bench = "gnuplot -p -e \"${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
