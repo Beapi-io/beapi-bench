@@ -48,7 +48,7 @@ or use shorthand like so...
 ![alt text](https://github.com/orubel/logos/blob/master/IO.png)
 
 ## Is there a good concurrency to requests ratio I should use?
-Think of 'concurrency' as the STRENGTH of the test and 'requests' as the length. 'concurrency' set how many concurrent requests happen per second. 'requests' sets how many requests must be fulfilled until the test stops. I usually set concurrency to 2.5 - 5% of the number of requests (depending on how hard I want to hammer the server). You don't have to be exact but be aware that higher concurrency changes how many new threads the server will try to spawn early on.
+Think of 'concurrency' as the STRENGTH OF THE TEST and 'requests' as the LENGTH OF THE TEST. 'concurrency' sets how many concurrent requests happen per second. 'requests' sets how many requests must be fulfilled until the test stops. I usually set concurrency to 2.5 - 5% of the number of requests (depending on how hard I want to hammer the server). You don't have to be exact but be aware that higher concurrency changes how many new threads the server will try to spawn early on; threads spawned are set in your config and the higher the thread count spawned earlier, the more processing power and memory it requires... so it is a balancing act to get a good thread count for your instance and required traffic.
 
 Also, most single servers will start failing tests over 500 concurrency so try to set your concurrency to somewhere between 50-400 for most tests and requests between 1000-80000.
 
