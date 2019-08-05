@@ -317,22 +317,29 @@ enum CommandLineInterface{
         }
         file.text = """
 <html>
-<body>
-<table style="margin-left:auto; margin-right:auto;">
+<head>
+<title>BeAPI API Benchmarking Tool</title>
+
+</head>
+<body bgcolor="#fff1c8">
+<table cellpadding=15 style="margin-left:auto; margin-right:auto;background-color:#ffffff;padding-left=35px;padding-right=35px;">
+<tr>
+<td colspan=2><img src='https://raw.githubusercontent.com/orubel/logos/master/beapi_logo_large.png' style="height:75px;"/><h1 style='float:right;font-family: Arial, Helvetica, sans-serif;'>API Benchmarking Tool</h1></td>
+</tr>
 <tr>
 <td>
 <ul>
-<li><b>URL:</b>${endpoint}</li>
-<li><b>Method:</b>${method}</li>
-<li><b>Content-Type:</b>${contentType}</li>
+<li style="list-style-type: none;"><b>URL:</b>${endpoint}</li>
+<li style="list-style-type: none;"><b>Method:</b>${method}</li>
+<li style="list-style-type: none;"><b>Content-Type:</b>${contentType}</li>
 <ul>
 </td>
 <td>
 <ul>
-<li><b>Concurrency/test:</b>${concurrency}</li>
-<li><b>Requests/test:</b>${requests}</li>
-<li><b>Number of Tests:</b>${testSize}</li>
-<li><b>Hardcore:</b>${!noHardcore}</li>
+<li style="list-style-type: none;"><b>Concurrency per Test:</b>${concurrency}</li>
+<li style="list-style-type: none;"><b>Requests per Test:</b>${requests}</li>
+<li style="list-style-type: none;"><b>Number of Tests:</b>${testSize}</li>
+<li style="list-style-type: none;"><b>Hardcore:</b>${!noHardcore}</li>
 <ul>
 </td>
 </tr>
