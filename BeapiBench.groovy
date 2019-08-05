@@ -39,7 +39,7 @@ enum CommandLineInterface{
     private List methods = ['GET', 'PUT', 'POST', 'DELETE']
     protected String method
     private List graphTypes = ['TIME','TOTALTIME','IO','SUCCESS_FAIL','ALL']
-    protected String graphType = 'TIME'
+    protected String graphType = 'ALL'
     protected String endpoint
     protected Integer concurrency = 50
     protected Integer requests = 1000
@@ -260,7 +260,7 @@ enum CommandLineInterface{
 
             if(this.noHardcore) {
                 float waitTime = Float.parseFloat(returnData[1])
-                waitTime = ((waitTime * 1000) * 2) + 250
+                waitTime = ((waitTime * 1000) * 1.8)
                 sleep(waitTime as Integer)
             }
 
@@ -281,24 +281,73 @@ enum CommandLineInterface{
             i++
         }
 
+        // REMOVE PREVIOUS GRAPHS
+        1..4.each(){
+            def file =new File("beapi_chart${it}.png")
+            if(file.exists() && file.canRead()){
+                file.delete()
+            }
+        }
+
         // CREATE GRAPH
         String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
         if(this.graphType!='ALL') {
-            println("[tmp gnuplot file] >> "+this.tmpPath)
+            //println("[tmp gnuplot file] >> "+this.tmpPath)
             createChart(this.graphType,"${title}")
         }else{
-            println("[tmp gnuplot file] >> "+this.tmpPath)
+            //println("[tmp gnuplot file] >> "+this.tmpPath)
             this.graphTypes.each(){
                 if(it!='ALL'){
                     createChart("${it}","${title}")
                 }
             }
         }
+        createFile()
     }
 
     // TODO
     protected testConnection(){
 
+    }
+
+    protected void createFile(){
+        def file =new File("beapi_bench.html")
+        if(file.exists() && file.canRead()){
+            file.text = ''
+        }
+        file.text = """
+<html>
+<body>
+<table style="margin-left:auto; margin-right:auto;">
+<tr>
+<td>
+<ul>
+<li><b>URL:</b>${endpoint}</li>
+<li><b>Method:</b>${method}</li>
+<li><b>Content-Type:</b>${contentType}</li>
+<ul>
+</td>
+<td>
+<ul>
+<li><b>Concurrency/test:</b>${concurrency}</li>
+<li><b>Requests/test:</b>${requests}</li>
+<li><b>Number of Tests:</b>${testSize}</li>
+<li><b>Hardcore:</b>${!noHardcore}</li>
+<ul>
+</td>
+</tr>
+<tr>
+<td><img src='beapi_chart1.png'></td>
+<td><img src='beapi_chart2.png'></td>
+</tr>
+<tr>
+<td><img src='beapi_chart3.png'></td>
+<td><img src='beapi_chart4.png'></td>
+</tr>
+</body>
+</html>
+"""
+        println("### [beapi bench complete] >> See results in 'beapi_bench.html' file ###")
     }
 
     protected List callApi(String postData, Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint, List headers) {
@@ -322,8 +371,7 @@ enum CommandLineInterface{
         String output = outputStream.toString()
         List<String> returnData = ['0', '0', '0', '0', '0', '0', '0', '0', '0']
         String finalOutput = ""
-        boolean non2xx = false
-        boolean non2xxData = false
+
         if (output) {
             List lines = output.readLines()
             lines.each() { it2 ->
@@ -391,6 +439,7 @@ enum CommandLineInterface{
 
     protected void createChart(String graphType, String title){
         try{
+            String output
             String key = "set key left top;"
             String style = "set style textbox opaque;"
             String gridY = ""
@@ -409,7 +458,7 @@ enum CommandLineInterface{
                     ylabel = "set ylabel \\\"RPS For Each Test\\\" ;"
                     switch(graphType){
                         case 'TIME':
-                            //set output 'beapi_chart1.png'
+                            output = "set term png;set output 'beapi_chart1.png';"
                             xlabel = "set xlabel \\\"Seconds To Do ${this.requests} Requests\\\" ;"
                             setTitle = "set title \\\"Time For Each API Test  (Plot Points show time for each request in ms)\\\" ;"
                             gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
@@ -421,7 +470,7 @@ enum CommandLineInterface{
                             range = "2:4:2"
                             break
                         case 'TOTALTIME':
-                            //set output 'beapi_chart2.png'
+                            output = "set term png;set output 'beapi_chart2.png';"
                             xlabel = "set xlabel \\\"Total Seconds For Tests\\\" ;"
                             setTitle = "set title \\\"Concatenated Time Of Concurrent API Tests (Plot Points show time for each request in ms)\\\" ;"
                             gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
@@ -435,7 +484,7 @@ enum CommandLineInterface{
                     plot = "plot '${this.tmpPath}' using ${range} with linespoint pt 7 title \\\"${title}\\\",      ''          ${pointLabel}"
                     break
                 case 'IO':
-                    //set output 'beapi_chart3.png'
+                    output = "set term png;set output 'beapi_chart3.png';"
                     xlabel = "set xlabel \\\"Test # of ${this.testSize} Tests\\\" ;"
                     key = "set key right top;"
                     gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
@@ -445,7 +494,7 @@ enum CommandLineInterface{
                     plot = "plot '${this.tmpPath}' using 11 t \\\"connection time\\\", '' using 13 t \\\"waiting\\\", '' using 12:xtic(1) t \\\"processing\\\";"
                     break;
                 case 'SUCCESS_FAIL':
-                    //set output 'beapi_chart3.png'
+                    output = "set term png;set output 'beapi_chart4.png';"
                     xlabel = "set xlabel \\\"Test # of ${this.testSize} Tests\\\" ;"
                     key = "set key right top;"
                     gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0; set yrange [0:${this.requests + (this.requests/2)}];"
@@ -457,7 +506,7 @@ enum CommandLineInterface{
 
             }
 
-            String bench = "gnuplot -p -e \"${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
+            String bench = "gnuplot -p -e \"${output}${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
             // println(bench)
             def proc = ['bash', '-c', bench].execute()
             proc.waitFor()
