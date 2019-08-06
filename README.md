@@ -4,6 +4,8 @@
 
 Command line Benchmarking tool for apis. Allows users to set concurrency/requests and runs set number of tests to BOMBARD endpoint to see how it will respond. This is helpful for numerous reasons:
 
+![alt text](https://github.com/orubel/logos/blob/master/bench.png)
+
 - creating more stable/scalable configuration for application server(ie garbage collection, threading, synchronization of threads, etc)
 - find bottlenecks and issues at points of scale
 - find ideal scale point for load balancing.
