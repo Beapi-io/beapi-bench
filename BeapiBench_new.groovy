@@ -270,46 +270,10 @@ enum CommandLineInterface{
                 waitTime = ((waitTime * 1000) * 1.8)
                 sleep(waitTime as Integer)
             }
-
             i++
         }
 
-
-        // CREATE DATA FILE
-        File apiBenchData = new File("${this.tmpPath}")
-        if (apiBenchData.exists() && apiBenchData.canRead()) { apiBenchData.delete() }
-        apiBenchData.append('# doc   sum   time   rps   success   fail   data   html   tpr   transferrate   connect   processing   waiting   ttime\n')
-
-        i = 1
-        data.each() {
-            apiBenchData.append "${i}   "
-            apiBenchData.append it.join('   ')
-            apiBenchData.append '\n'
-            i++
-        }
-
-        // REMOVE PREVIOUS GRAPHS
-        1..4.each(){
-            def file =new File("beapi_chart${it}.png")
-            if(file.exists() && file.canRead()){
-                file.delete()
-            }
-        }
-
-        // CREATE GRAPH
-        String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
-        if(this.graphType!='ALL') {
-            //println("[tmp gnuplot file] >> "+this.tmpPath)
-            createChart(this.graphType,"${title}")
-        }else{
-            //println("[tmp gnuplot file] >> "+this.tmpPath)
-            this.graphTypes.each(){
-                if(it!='ALL'){
-                    createChart("${it}","${title}")
-                }
-            }
-        }
-        createFile()
+        createFile(data)
     }
 
     // TODO
@@ -317,7 +281,29 @@ enum CommandLineInterface{
 
     }
 
-    protected void createFile(){
+    protected void createFile(List data){
+        // data{*}{0}
+        List xrange1 = []
+        List xrange2 = []
+        List xrange3 = []
+        List xrange4 = []
+
+        // data*[2]
+        String values1 = ""
+        List values2 = []
+        List values3 = []
+        List values4 = []
+
+        data.each(){
+            if(it[0]!=null) {
+                xrange1.add(it[0])
+				xrange2.add(it[1])
+            }
+            if(it[2]!=null) {
+                values1 += "{x:${it[0]},y:${it[2]}},"
+				values2.add(it[2])
+            }
+        }
         def file =new File("beapi_bench.html")
         if(file.exists() && file.canRead()){
             file.text = ''
@@ -404,10 +390,10 @@ enum CommandLineInterface{
         new Chart(document.getElementById("chartjs-0"),{
             "type":"line",
             "data":{
-                "labels":["January","February","March","April","May","June","July"],
+                "labels":${xrange1},
                 "datasets":[{
-                    "label":"My First Dataset",
-                    "data":[65,59,80,81,56,55,40],
+                    "label":"${concurrency} c / ${requests} n / ${testSize} tests",
+                    "data":[${values1}],
                     "fill":false,
                     "borderColor":"rgb(75, 192, 192)",
                     "lineTension":0.1
@@ -428,10 +414,10 @@ enum CommandLineInterface{
         new Chart(document.getElementById("chartjs-1"),{
             "type":"line",
             "data":{
-                "labels":["January","February","March","April","May","June","July"],
+                "labels":${xrange2},
                 "datasets":[{
-                    "label":"My First Dataset",
-                    "data":[65,59,80,81,56,55,40],
+                    "label":"${concurrency} c / ${requests} n / ${testSize} tests",
+                    "data":${values2},
                     "fill":false,
                     "borderColor":"rgb(75, 192, 192)",
                     "lineTension":0.1
