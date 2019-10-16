@@ -2,8 +2,6 @@
 
 # beapi-bench
 
-github: orubel
-
 Command line Benchmarking tool for apis. Allows users to set concurrency/requests and runs set number of tests to BOMBARD endpoint to see how it will respond. For example, the following test was done LOCALLY (hence the low IO) on a 3.2GHZ 4-core processor with 2 GB of dedicated RAM:
 
 ![alt text](https://github.com/orubel/logos/blob/master/bench.png)
