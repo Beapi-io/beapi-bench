@@ -16,11 +16,10 @@ This benchmark is helpful for numerous reasons:
 - ApacheBench (ab)
 - GnuPlot
 
-You can do this by running the following from your shell:
+You can avoid all this on Ubuntu simply by installing the PPA:
 ~~~~
-sudo apt install groovy
-sudo apt install apache-utils
-sudo apt-install gnuplot
+sudo add-apt-repository ppa:orubel/beapi-bench
+sudo apt-get update
 ~~~~
 
 ## Usage 
