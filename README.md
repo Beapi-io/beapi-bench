@@ -22,7 +22,7 @@ You can install on Ubuntu simply by installing the PPA:
 sudo add-apt-repository ppa:orubel/beapi-bench
 sudo apt-get update
 ~~~~
-**NOTE:** If you have a pre-existing install of Groovy, you will want to uninstall the version of Groovy, this installs and make sure that your existing version can be seen by the system (/etc/bash.bashrc)
+**NOTE:** If you have a pre-existing install of Groovy, you will want to uninstall the version of Groovy the PPA installs and make sure that your existing version can be seen by the system (/etc/bash.bashrc)
 
 ## Usage 
 Download & Install script locally and make script executable (chmod 775 BeapiBench.groovy) then run like so:
