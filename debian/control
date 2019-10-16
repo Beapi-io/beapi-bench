@@ -1,0 +1,12 @@
+Source: beapi-bench
+Section: libs
+Priority: optional 
+Maintainer: Owen Rubel <orubel@gmail.com>
+Build-Depends: groovy
+Standards-Version: 0.1
+Homepage: https://github.com/orubel/beapi-bench
+
+Package: beapi-bench
+Architecture: all
+Depends: groovy, gnuplot-x11,apache2-utils
+Description: Command line Benchmarking tool for apis. Allows users to set concurrency/requests and runs set number of tests to BOMBARD endpoint to see how it will respond. Based on ApacheBench
