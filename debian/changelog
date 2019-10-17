@@ -1,5 +1,5 @@
-beapi-bench (0.1) bionic; urgency=medium
+beapi-bench (0.2) bionic; urgency=medium
 
-  * Initial release.
+  * Minor changes.
 
  -- Owen Rubel <orubel@gmail.com>  Tue, 15 Oct 2019 11:16:23 -0700

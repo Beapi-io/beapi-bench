@@ -3,7 +3,7 @@ Section: libs
 Priority: optional 
 Maintainer: Owen Rubel <orubel@gmail.com>
 Build-Depends: groovy
-Standards-Version: 0.1
+Standards-Version: 0.2
 Homepage: https://github.com/orubel/beapi-bench
 
 Package: beapi-bench
