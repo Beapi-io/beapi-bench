@@ -29,15 +29,15 @@ sudo apt-get update
 ## Usage 
 Download & Install script locally and make script executable (chmod 775 BeapiBench.groovy) then run like so:
 ~~~~
-./BeapiBench -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
+./BeapiBench.groovy -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
 This will use the DEFAULT VALUES to create the test. If you want to be more precise with your testing, you can create your test like so:
 ~~~~
-./BeapiBench --concurrency=200 --requests=3000 --token=<JWT_TOKEN> --method=GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
+./BeapiBench.groovy --concurrency=200 --requests=3000 --token=<JWT_TOKEN> --method=GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
 ~~~~
 or use shorthand like so...
 ~~~~
-./BeapiBench -c 200 -n 3000 -t <JWT_TOKEN> -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
+./BeapiBench.groovy -c 200 -n 3000 -t <JWT_TOKEN> -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
 ~~~~
 
 ## Graph Types 
