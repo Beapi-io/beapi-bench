@@ -17,17 +17,16 @@ This benchmark is helpful for numerous reasons:
 - Groovy
 - ApacheBench (ab)
 - GnuPlot
-
-## Ubuntu Installation:
-You can install on Ubuntu simply by installing the PPA:
+- curl
 ~~~~
-sudo add-apt-repository ppa:orubel/beapi-bench
-sudo apt-get update
+sudo add install groovy
+sudo apt install apache2-untils
+sudo apt install gnuplot
+sudo apt-install curl
 ~~~~
-**NOTE:** If you have a pre-existing install of Groovy, you will want to uninstall the version of Groovy the PPA installs and make sure that your existing version can be seen by the system (/etc/bash.bashrc)
 
 ## Usage 
-Download & Install script locally and make script executable (chmod 775 BeapiBench.groovy) then run like so:
+Clone the project and make 'BeapiBench' script executable (chmod 775 BeapiBench) then run like so:
 ~~~~
 ./BeapiBench -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
