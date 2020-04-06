@@ -229,10 +229,22 @@ enum CommandLineInterface{
 
         int i = 0
         List data = []
+        List rps = []
+        List rng = []
+        Float avgNum = 0.0
+        Float maxNum = 0.0
+
+
+
+
         while (i < this.testSize) {
             // call method; move this to method
             print("[TEST ${i+1} of ${this.testSize}] : ")
+
             List returnData = callApi(this.postData, this.concurrency, this.requests, this.contentType, this.token, this.method, this.endpoint, this.headers)
+            rps.add(Float.parseFloat(returnData[2]))
+            rng.add(Float.parseFloat(returnData[1]))
+
             if(!returnData.isEmpty()) {
                 DecimalFormat df = new DecimalFormat("0.00")
                 if (data.size() > 0) {
@@ -267,6 +279,11 @@ enum CommandLineInterface{
             i++
         }
 
+        List range = [ rng.min(), rng.max()]
+        avgNum = rps.sum()/rps.size()
+
+        maxNum = rps.max()
+        Float avgMaxMedian = avgNum+maxNum/2
 
         // CREATE DATA FILE
         File apiBenchData = new File("${this.tmpPath}")
@@ -293,12 +310,12 @@ enum CommandLineInterface{
         String title = "${this.concurrency} c / ${this.requests} n / ${this.testSize} tests}"
         if(this.graphType!='ALL') {
             //println("[tmp gnuplot file] >> "+this.tmpPath)
-            createChart(this.graphType,"${title}")
+            createChart(this.graphType,"${title}", avgNum, avgMaxMedian, range)
         }else{
             //println("[tmp gnuplot file] >> "+this.tmpPath)
             this.graphTypes.each(){
                 if(it!='ALL'){
-                    createChart("${it}","${title}")
+                    createChart(it,title, avgNum, maxNum, range)
                 }
             }
         }
@@ -377,6 +394,7 @@ enum CommandLineInterface{
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
         List<String> returnData = ['0', '0', '0', '0', '0', '0', '0', '0', '0']
+        List num = []
         String finalOutput = ""
 
         if (output) {
@@ -389,7 +407,7 @@ enum CommandLineInterface{
                             //println "Document Length: ${Matcher.lastMatcher[0][1]}"
                             returnData[0] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
                             break
-                        case ~/Time taken for tests:   ([0-9\.]+) seconds/:
+                        case ~/Time taken for tests:   ([0-9]*\.[0-9]*) seconds/:
                             //println "Time taken for tests: ${Matcher.lastMatcher[0][1]}"
                             returnData[1] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
                             break
@@ -400,6 +418,7 @@ enum CommandLineInterface{
                         case ~/Failed requests:        ([0-9]+)/:
                             //println "Failed requests: ${Matcher.lastMatcher[0][1]}"
                             returnData[4] = df.format(Float.parseFloat(Matcher.lastMatcher[0][1]))
+                            //avg_num[4] = (returnData.each() as Integer).sum() / 9
                             break
                         case ~/Total transferred:      ([0-9]+) bytes/:
                             //println "Total transferred: ${Matcher.lastMatcher[0][1]}"
@@ -436,6 +455,8 @@ enum CommandLineInterface{
                     }
                 }
             }
+
+
             println("[${returnData[0]}  bytes / ${returnData[8]} kb/s] : ${returnData[2]} rps")
         } else {
             println("[ERROR: apiBench]:  Error message follows : " + error)
@@ -444,7 +465,8 @@ enum CommandLineInterface{
     }
 
 
-    protected void createChart(String graphType, String title){
+    protected void createChart(String graphType, String title, Float avgNum, Float maxNum, ArrayList rng){
+
         try{
             String output
             String key = "set key left top;"
@@ -465,12 +487,15 @@ enum CommandLineInterface{
                     ylabel = "set ylabel \\\"RPS For Each Test\\\" ;"
                     switch(graphType){
                         case 'TIME':
+                            Float tmp = (avgNum+maxNum)/2
+                            String avg = Math.round(tmp) as String
                             output = "set term png;set output 'beapi_chart1.png';"
                             xlabel = "set xlabel \\\"Seconds To Do ${this.requests} Requests\\\" ;"
                             setTitle = "set title \\\"Time For Each API Test  (Plot Points show time for each request in ms)\\\" ;"
                             gridY = "set grid ytics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
-                            gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0;"
+                            gridX = "set xrange [*:] reverse;set grid xtics lc rgb \\\"#bbbbbb\\\" lw 1 lt 0; "
                             // 3::0 sets every 3rd tic / 1:3:8 (x-range, y-range, string)
+                            style = "set arrow 7 from ${rng[1]},${avg} to ${rng[0]},${avg},0 nohead lw 2 lc rgb \\\"#ffcc00\\\" front;set label \\\"75% cap\\\" at ${rng[0]},${avg};"
                             //pointLabel = "every 3::0 using 1:3:8 with labels center boxed notitle"
                             pointLabel = "every 3::0 using 2:4:9 with labels center boxed notitle"
                             //range = "1:3:1"
