@@ -17,27 +17,26 @@ This benchmark is helpful for numerous reasons:
 - Groovy
 - ApacheBench (ab)
 - GnuPlot
-
-## Ubuntu Installation:
-You can install on Ubuntu simply by installing the PPA:
+- curl
 ~~~~
-sudo add-apt-repository ppa:orubel/beapi-bench
-sudo apt-get update
+sudo add install groovy
+sudo apt install apache2-untils
+sudo apt install gnuplot
+sudo apt-install curl
 ~~~~
-**NOTE:** If you have a pre-existing install of Groovy, you will want to uninstall the version of Groovy the PPA installs and make sure that your existing version can be seen by the system (/etc/bash.bashrc)
 
 ## Usage 
-Download & Install script locally and make script executable (chmod 775 BeapiBench.groovy) then run like so:
+Clone the project and make 'BeapiBench' script executable (chmod 775 BeapiBench) then run like so:
 ~~~~
-./BeapiBench.groovy -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
+./BeapiBench -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
 This will use the DEFAULT VALUES to create the test. If you want to be more precise with your testing, you can create your test like so:
 ~~~~
-./BeapiBench.groovy --concurrency=200 --requests=3000 --token=<JWT_TOKEN> --method=GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
+./BeapiBench --concurrency=200 --requests=3000 --token=<JWT_TOKEN> --method=GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
 ~~~~
 or use shorthand like so...
 ~~~~
-./BeapiBench.groovy -c 200 -n 3000 -t <JWT_TOKEN> -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
+./BeapiBench -c 200 -n 3000 -t <JWT_TOKEN> -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225 --testnum=50
 ~~~~
 
 ## Graph Types 
