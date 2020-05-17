@@ -43,6 +43,8 @@ enum CommandLineInterface{
     protected String endpoint
     protected Integer concurrency = 50
     protected Integer requests = 1000
+    protected String resource
+    protected Integer transferred
     protected String token
     protected List headers
     protected String contentType = 'application/json'
@@ -245,6 +247,13 @@ enum CommandLineInterface{
             rps.add(Float.parseFloat(returnData[2]))
             rng.add(Float.parseFloat(returnData[1]))
 
+            if(!this.resource) {
+                this.resource = returnData[0] + " bytes"
+            }
+            if(!this.transferred) {
+                this.transferred = ((Integer)Float.parseFloat(returnData[5]))/this.requests
+            }
+
             if(!returnData.isEmpty()) {
                 DecimalFormat df = new DecimalFormat("0.00")
                 if (data.size() > 0) {
@@ -349,6 +358,7 @@ enum CommandLineInterface{
 <li style="list-style-type: none;"><b>URL:</b>${endpoint}</li>
 <li style="list-style-type: none;"><b>Method:</b>${method}</li>
 <li style="list-style-type: none;"><b>Content-Type:</b>${contentType}</li>
+<li style="list-style-type: none;"><b>Document Length:</b>${this.resource}</li>
 <ul>
 </td>
 <td>
@@ -357,6 +367,7 @@ enum CommandLineInterface{
 <li style="list-style-type: none;"><b>Requests per Test:</b>${requests}</li>
 <li style="list-style-type: none;"><b>Number of Tests:</b>${testSize}</li>
 <li style="list-style-type: none;"><b>Hardcore:</b>${!noHardcore}</li>
+<li style="list-style-type: none;"><b>Transferred/request:</b>${this.transferred} bytes</li>
 <ul>
 </td>
 </tr>
@@ -535,7 +546,6 @@ enum CommandLineInterface{
                     gridX = "set xtics border in scale 0,0 nomirror center; set xrange [0:${this.testSize}] noreverse writeback;set x2range [ * : * ] noreverse writeback;"
                     plot = "plot '${this.tmpPath}' using 5  every ::1 t \\\"successful requests\\\", '' using 6:xtic(1) t \\\"failed requests\\\";"
                     break;
-
             }
 
             String bench = "gnuplot -p -e \"${output}${gridX}${gridY}${xlabel}${ylabel}${setTitle}${key}${style}${plot};\""
