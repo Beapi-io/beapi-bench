@@ -367,7 +367,7 @@ enum CommandLineInterface{
 <li style="list-style-type: none;"><b>Requests per Test:</b>${requests}</li>
 <li style="list-style-type: none;"><b>Number of Tests:</b>${testSize}</li>
 <li style="list-style-type: none;"><b>Hardcore:</b>${!noHardcore}</li>
-<li style="list-style-type: none;"><b>Transferred/response:</b>${this.transferred} bytes</li>
+<li style="list-style-type: none;"><b>Response Length w/Headers:</b>${this.transferred} bytes</li>
 <ul>
 </td>
 </tr>
