@@ -56,6 +56,7 @@ enum CommandLineInterface{
     Float totalTime
     Integer testSize = 50
     String postData
+    String protocol = 'http2'
 
     CliBuilder cliBuilder
 
@@ -235,8 +236,6 @@ enum CommandLineInterface{
         List rng = []
         Float avgNum = 0.0
         Float maxNum = 0.0
-
-
 
 
         while (i < this.testSize) {
