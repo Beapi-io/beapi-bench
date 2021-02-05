@@ -19,10 +19,10 @@ This benchmark is helpful for numerous reasons:
 - GnuPlot
 - curl
 ~~~~
-sudo add install groovy
+sudo apt install groovy
 sudo apt install apache2-utils
 sudo apt install gnuplot
-sudo apt-install curl
+sudo apt install curl
 ~~~~
 
 ## Usage 
