@@ -26,7 +26,7 @@ sudo apt install curl
 ~~~~
 
 ## Usage 
-Clone the project and make 'BeapiBench' script executable (chmod 775 BeapiBench) then run like so:
+Clone the project (or just copy the 'BeapiBench' file locally) and make 'BeapiBench' script executable (chmod 775 BeapiBench) then run like so:
 ~~~~
 ./BeapiBench -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
