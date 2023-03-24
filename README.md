@@ -99,3 +99,10 @@ sure these are available and installed via your repository. If you have any
 questions, please visit us a http://beapi.io. Thanks again.
 ~~~~
 
+## Troubleshooting
+  - **"/home/owen/workspace/beapi-bench/BeapiBench: 62: unable to resolve class CliBuilder"** : If the file spits out this, it means your version of groovy is incompatible with the version of CliBuilder it is trying to use. Easy fix. Go into the file and comment out one line and use the other:
+
+```
+//@Grab(group='commons-cli', module='commons-cli', version='1.4')
+@Grab("org.apache.groovy:groovy-cli-commons:4.0.9")
+```
