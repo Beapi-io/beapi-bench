@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-@Grab(group='commons-cli', module='commons-cli', version='1.4')
+//@Grab(group='commons-cli', module='commons-cli', version='1.4')
+@Grab("org.apache.groovy:groovy-cli-commons:4.0.9")
 
 import groovy.json.JsonSlurper
 import java.text.DecimalFormat
