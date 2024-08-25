@@ -19,14 +19,14 @@ This benchmark is helpful for numerous reasons:
 - GnuPlot
 - curl
 ~~~~
-sudo add install groovy
-sudo apt install apache2-untils
+sudo apt install groovy
+sudo apt install apache2-utils
 sudo apt install gnuplot
-sudo apt-install curl
+sudo apt install curl
 ~~~~
 
 ## Usage 
-Clone the project and make 'BeapiBench' script executable (chmod 775 BeapiBench) then run like so:
+Clone the project (or just copy the 'BeapiBench' file locally) and make 'BeapiBench' script executable (chmod 775 BeapiBench) then run like so:
 ~~~~
 ./BeapiBench -m GET --endpoint=http://localhost:8080/v1.3.0/person/show/225
 ~~~~
@@ -99,3 +99,10 @@ sure these are available and installed via your repository. If you have any
 questions, please visit us a http://beapi.io. Thanks again.
 ~~~~
 
+## Troubleshooting
+  - **"/home/owen/workspace/beapi-bench/BeapiBench: 62: unable to resolve class CliBuilder"** : If the file spits out this, it means your version of groovy is incompatible with the version of CliBuilder it is trying to use. Easy fix. Go into the file and comment out one line and use the other:
+
+```
+//@Grab(group='commons-cli', module='commons-cli', version='1.4')
+@Grab("org.apache.groovy:groovy-cli-commons:4.0.9")
+```
