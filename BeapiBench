@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-
 /*
  * Copyright 2013-2019 Beapi.io
  *
