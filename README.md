@@ -69,6 +69,9 @@ OPTIONS:
                                      (usage: -c 50, --concurrency=50)
     --endpoint <property=value>      url for making the api call (usage:
                                      --endpoint=http://localhost:8080)
+ -C <property=value>                 key/val pair for passing cookie value (ie
+                                     -C='JSESSIONID':'DDADD5351AD3DCAE8906F3C2FD
+                                     FB8A93')
  -f,--force                          Force run without checking for dependencies
  -g,--graphtype <property=value>     type of graph to create: TIME / TOTALTIME /
                                      ALL; defaults to TESTTIME (usage: -g
