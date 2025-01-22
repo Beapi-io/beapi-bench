@@ -109,3 +109,6 @@ questions, please visit us a http://beapi.io. Thanks again.
 //@Grab(group='commons-cli', module='commons-cli', version='1.4')
 @Grab("org.apache.groovy:groovy-cli-commons:4.0.9")
 ```
+# Q&A
+- **Why does apacheBench (ab) with one test should ENTIRELY DIFFERENT STATS????**
+    -  If you will notice, the stats for beapi-bench = number of cores X apachebench results. ApacheBench uses only ONE CORE to run its tests (which is not how an api server runs); api servers use ALL processor cores. Thats how beapi-bench works too. So our stats will reflect using all cores available to us which is (#numCores x ab results)
