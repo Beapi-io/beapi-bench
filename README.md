@@ -111,4 +111,4 @@ questions, please visit us a http://beapi.io. Thanks again.
 ```
 # Q&A
 - **Why does apacheBench (ab) with one test show ENTIRELY DIFFERENT STATS????**
-    -  If you will notice, the stats for beapi-bench = number of cores X apachebench results. ApacheBench uses only ONE CORE to run its tests (which is not how an api server runs); api servers use ALL processor cores. Thats how beapi-bench works too. So our stats will reflect using all cores available to us which is (#numCores x ab results)
+    -  If you will notice, the stats for beapi-bench = (number_of_cores x apachebench_results). ApacheBench uses only ONE CORE and is single-threaded when running its tests (which is ONLY how a single-threaded app runs... not multithreaded); api servers use ALL processor cores. Thats how beapi-bench works too. So our stats will reflect using all cores available to us which is (#numCores x ab results)
