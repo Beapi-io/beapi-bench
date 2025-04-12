@@ -214,7 +214,7 @@ class BeapiBench {
         Float totalTime
         Integer testSize = 50
         String postData
-        String authData
+        LinkedHashMap authData
         String protocol = 'http2'
 
 
@@ -475,7 +475,6 @@ class BeapiBench {
                 String responseBody = response.body()
                 println("Response: " + responseBody);
 
-                println("need to set cookie...")
             }else {
                 while (i < this.testSize) {
                     // call method; move this to method
@@ -594,6 +593,9 @@ class BeapiBench {
         }
 
         protected List callApi(String postData, Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint, List headers, Map cookie) {
+            // start time
+
+
             String bench = "ab -c ${concurrency} -n ${requests}"
 
             if (cookie) {
@@ -626,6 +628,7 @@ class BeapiBench {
             List<String> returnData = ['0', '0', '0', '0', '0', '0', '0', '0', '0']
             List num = []
             String finalOutput = ""
+
 
             if (output) {
                 List lines = output.readLines()
@@ -707,16 +710,15 @@ class BeapiBench {
             return BodyPublishers.ofString(builder.toString());
         }
 
-        protected HttpResponse sendAuthRequest(String authData, String contentType, String method, String endpoint, List headers) {
-            println("endpoint :"+endpoint)
-
+        protected HttpResponse sendAuthRequest(LinkedHashMap authData, String contentType, String method, String endpoint, List headers) {
+            // todo : autopopulate from 'beapi_bench.properties' (see file)
             HttpContext localContext = new BasicHttpContext();
-
-            //HttpResponse response
+            println(authData)
+            println(authData.getClass())
 
             Map<Object, Object> data = new HashMap<>();
-            data.put("username", "admin");
-            data.put("password", "@6m!nP@s5");
+            data.put("username", authData['username']);
+            data.put("password", authData['password']);
 
 
             switch(method){
@@ -751,30 +753,5 @@ class BeapiBench {
 
 
 
-    protected List sendRequest(String postData, Integer concurrency, Integer requests, String contentType, String token, String method, String endpoint, List headers, Map cookie) {
 
-        //CookieStore cookieStore = new BasicCookieStore();
-        //BasicClientCookie clientCookie = new BasicClientCookie("JSESSIONID", "8C1674AEC09A93F10BD959CD6DDCE5C7");
-        //clientCookie.setDomain("localhost");
-        //clientCookie.setPath("/");
-        //cookieStore.addCookie(clientCookie);
-
-        CookieStore cookieStore = new BasicCookieStore();
-        cookieStore.addCookie(cookie);
-
-        HttpContext localContext = new BasicHttpContext();
-        HttpClient client = new DefaultHttpClient();
-        HttpGet request = new HttpGet(endpoint)
-        request.setHeader(new BasicHeader("Content-Type", "application/json"));
-        request.setHeader(new BasicHeader("Authorization", "Bearer " + token));
-        localContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
-        HttpResponse response = client.execute(request, localContext);
-
-        int statusCode = response.getStatusLine().getStatusCode()
-        println("Status Code: " + statusCode);
-
-        String responseBody = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-        println("Response: " + responseBody);
-
-    }
 }
